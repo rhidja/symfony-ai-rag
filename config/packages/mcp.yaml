@@ -1,0 +1,8 @@
+mcp:
+    app: 'rag-knowledge-base'
+    version: '1.0.0'
+    description: 'MCP server exposing the RAG knowledge base: list indexed documents and ask questions.'
+
+    client_transports:
+        stdio: true
+        http: false
