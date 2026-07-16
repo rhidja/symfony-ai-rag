@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN install-php-extensions \
         intl \
-        opcache
+        opcache \
+        gd
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 

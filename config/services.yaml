@@ -35,3 +35,10 @@ services:
         arguments:
             $chunkSize: '%app.rag.chunk_size%'
             $overlap: '%app.rag.chunk_overlap%'
+
+when@test:
+    services:
+        # made public so functional tests can replace it with a fake before making requests
+        App\Rag\RagQueryService:
+            autowire: true
+            public: true
