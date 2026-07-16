@@ -119,9 +119,10 @@ adapté à un cas d'usage de questions-réponses qui ne nécessite pas de raison
 - **`docker-compose.yaml`** à la racine, avec deux services :
   - **`app`** : l'application Symfony servie par **FrankenPHP** (image basée sur le
     `dunglas/frankenphp` officiel, dans la lignée du Symfony Docker officiel), remplaçant le serveur
-    local `symfony server`. FrankenPHP embarque son propre serveur web (basé sur Caddy) et expose
-    directement l'application sur un port local (ex. `localhost:8080`) — pas de reverse proxy
-    supplémentaire nécessaire pour une seule application. Le code est monté en volume pour le
+    local `symfony server`. FrankenPHP embarque son propre serveur web (basé sur Caddy) et gère
+    directement le nom de domaine local via la variable d'environnement
+    `SERVER_NAME=rag.localhost:80` — pas de reverse proxy supplémentaire nécessaire. HTTP simple
+    (pas de certificat local à gérer/accepter) dans ce périmètre. Le code est monté en volume pour le
     développement.
   - **`database`** : Postgres avec l'image `pgvector/pgvector` (Postgres 16 ou 17), volume persistant.
 - **`symfony/doctrine-bundle` + `symfony/orm-pack`** : gèrent la connexion (`DATABASE_URL` dans
