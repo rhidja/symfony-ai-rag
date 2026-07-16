@@ -8,13 +8,17 @@ use Symfony\AI\Platform\Test\InMemoryPlatform;
 use Symfony\AI\Platform\Vector\Vector;
 use Symfony\AI\Store\Document\Metadata;
 use Symfony\AI\Store\Document\VectorDocument;
-use Symfony\AI\Store\RetrieverInterface;
+use Symfony\AI\Store\Document\VectorizerInterface;
+use Symfony\AI\Store\Query\VectorQuery;
+use Symfony\AI\Store\StoreInterface;
 use Symfony\Component\Uid\Uuid;
 
 final class RagQueryServiceTest extends TestCase
 {
     public function testAskReturnsAnswerWithSourcesWhenDocumentsFound(): void
     {
+        $questionVector = new Vector([0.1, 0.2, 0.3]);
+
         $document = new VectorDocument(
             Uuid::v4(),
             new Vector([0.1, 0.2, 0.3]),
@@ -24,15 +28,21 @@ final class RagQueryServiceTest extends TestCase
             ]),
         );
 
-        $retriever = $this->createMock(RetrieverInterface::class);
-        $retriever->expects(self::once())
-            ->method('retrieve')
-            ->with('How do I reset the device?', ['maxItems' => 5])
+        $vectorizer = $this->createMock(VectorizerInterface::class);
+        $vectorizer->expects(self::once())
+            ->method('vectorize')
+            ->with('How do I reset the device?')
+            ->willReturn($questionVector);
+
+        $store = $this->createMock(StoreInterface::class);
+        $store->expects(self::once())
+            ->method('query')
+            ->with(self::isInstanceOf(VectorQuery::class), ['limit' => 5])
             ->willReturn([$document]);
 
         $platform = new InMemoryPlatform('You can reset the device by holding the button. [/docs/manual.pdf]');
 
-        $service = new RagQueryService($retriever, $platform, 'gpt-4o-mini', 5);
+        $service = new RagQueryService($vectorizer, $store, $platform, 'gpt-4o-mini', 5);
 
         $answer = $service->ask('How do I reset the device?');
 
@@ -42,16 +52,19 @@ final class RagQueryServiceTest extends TestCase
 
     public function testAskReturnsNotFoundMessageWhenNoDocumentsRetrieved(): void
     {
-        $retriever = $this->createMock(RetrieverInterface::class);
-        $retriever->expects(self::once())
-            ->method('retrieve')
+        $vectorizer = $this->createMock(VectorizerInterface::class);
+        $vectorizer->method('vectorize')->willReturn(new Vector([0.1]));
+
+        $store = $this->createMock(StoreInterface::class);
+        $store->expects(self::once())
+            ->method('query')
             ->willReturn([]);
 
         $platform = new InMemoryPlatform(static function (): never {
             self::fail('The platform should not be called when no documents are retrieved.');
         });
 
-        $service = new RagQueryService($retriever, $platform, 'gpt-4o-mini', 5);
+        $service = new RagQueryService($vectorizer, $store, $platform, 'gpt-4o-mini', 5);
 
         $answer = $service->ask('What is the meaning of life?');
 

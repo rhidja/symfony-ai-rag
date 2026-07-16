@@ -5,7 +5,9 @@ namespace App\Rag;
 use Symfony\AI\Platform\Message\Message;
 use Symfony\AI\Platform\Message\MessageBag;
 use Symfony\AI\Platform\PlatformInterface;
-use Symfony\AI\Store\RetrieverInterface;
+use Symfony\AI\Store\Document\VectorizerInterface;
+use Symfony\AI\Store\Query\VectorQuery;
+use Symfony\AI\Store\StoreInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 
@@ -20,7 +22,9 @@ final class RagQueryService
 
     public function __construct(
         #[Target('default')]
-        private readonly RetrieverInterface $retriever,
+        private readonly VectorizerInterface $vectorizer,
+        #[Target('postgres_default')]
+        private readonly StoreInterface $store,
         private readonly PlatformInterface $platform,
         #[Autowire(param: 'app.rag.chat_model')]
         private readonly string $chatModel,
@@ -31,7 +35,8 @@ final class RagQueryService
 
     public function ask(string $question): RagAnswer
     {
-        $documents = iterator_to_array($this->retriever->retrieve($question, ['maxItems' => $this->topK]));
+        $vector = $this->vectorizer->vectorize($question);
+        $documents = iterator_to_array($this->store->query(new VectorQuery($vector), ['limit' => $this->topK]));
 
         if ([] === $documents) {
             return new RagAnswer(

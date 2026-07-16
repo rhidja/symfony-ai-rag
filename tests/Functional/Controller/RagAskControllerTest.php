@@ -7,7 +7,8 @@ use Symfony\AI\Platform\Test\InMemoryPlatform;
 use Symfony\AI\Platform\Vector\Vector;
 use Symfony\AI\Store\Document\Metadata;
 use Symfony\AI\Store\Document\VectorDocument;
-use Symfony\AI\Store\RetrieverInterface;
+use Symfony\AI\Store\Document\VectorizerInterface;
+use Symfony\AI\Store\StoreInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Uid\Uuid;
 
@@ -26,14 +27,17 @@ final class RagAskControllerTest extends WebTestCase
             ]),
         );
 
-        $retriever = $this->createMock(RetrieverInterface::class);
-        $retriever->method('retrieve')->willReturn([$document]);
+        $vectorizer = $this->createMock(VectorizerInterface::class);
+        $vectorizer->method('vectorize')->willReturn(new Vector([0.1, 0.2]));
+
+        $store = $this->createMock(StoreInterface::class);
+        $store->method('query')->willReturn([$document]);
 
         $platform = new InMemoryPlatform('Hold the button for 5 seconds.');
 
         static::getContainer()->set(
             RagQueryService::class,
-            new RagQueryService($retriever, $platform, 'gpt-4o-mini', 5),
+            new RagQueryService($vectorizer, $store, $platform, 'gpt-4o-mini', 5),
         );
 
         $client->request(
