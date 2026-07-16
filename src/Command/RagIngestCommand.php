@@ -2,9 +2,6 @@
 
 namespace App\Command;
 
-use Doctrine\DBAL\Connection;
-use Symfony\AI\Store\Document\Metadata;
-use Symfony\AI\Store\IndexerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -12,8 +9,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Process\PhpExecutableFinder;
+use Symfony\Component\Process\Process;
 
 #[AsCommand(
     name: 'app:rag:ingest',
@@ -21,14 +19,9 @@ use Symfony\Component\Finder\Finder;
 )]
 final class RagIngestCommand extends Command
 {
-    private const SUPPORTED_EXTENSIONS = ['pdf', 'docx'];
-
     public function __construct(
-        #[Target('documents')]
-        private readonly IndexerInterface $indexer,
-        private readonly Connection $connection,
-        #[Autowire(param: 'app.rag.store_table')]
-        private readonly string $tableName,
+        #[Autowire(param: 'kernel.project_dir')]
+        private readonly string $projectDir,
     ) {
         parent::__construct();
     }
@@ -63,31 +56,48 @@ final class RagIngestCommand extends Command
             return Command::SUCCESS;
         }
 
+        $phpBinary = (new PhpExecutableFinder())->find();
+        if (false === $phpBinary) {
+            $io->error('Unable to locate the PHP binary to run per-file ingestion subprocesses.');
+
+            return Command::FAILURE;
+        }
+
         $io->title(\sprintf('Ingesting documents from "%s"', $directory));
         $progressBar = $io->createProgressBar(\count($files));
         $progressBar->start();
 
+        $failures = [];
+
         foreach ($files as $file) {
             $path = $file->getRealPath();
 
-            $this->removeExistingChunks($path);
-            $this->indexer->index($path);
+            $process = new Process([$phpBinary, $this->projectDir.'/bin/console', 'app:rag:ingest-file', $path]);
+            $process->setTimeout(300);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                $failures[$path] = trim($process->getErrorOutput()) ?: trim($process->getOutput());
+            }
 
             $progressBar->advance();
         }
 
         $progressBar->finish();
         $io->newLine(2);
-        $io->success(\sprintf('Ingested %d document(s).', \count($files)));
+
+        $succeeded = \count($files) - \count($failures);
+        $io->success(\sprintf('Ingested %d document(s).', $succeeded));
+
+        if ([] !== $failures) {
+            $io->warning(\sprintf('%d document(s) failed to ingest:', \count($failures)));
+            foreach ($failures as $path => $message) {
+                $io->text(\sprintf(' - %s: %s', $path, $message));
+            }
+
+            return Command::FAILURE;
+        }
 
         return Command::SUCCESS;
-    }
-
-    private function removeExistingChunks(string $source): void
-    {
-        $this->connection->executeStatement(
-            \sprintf('DELETE FROM %s WHERE metadata->>%s = :source', $this->connection->quoteIdentifier($this->tableName), $this->connection->quote(Metadata::KEY_SOURCE)),
-            ['source' => $source],
-        );
     }
 }
