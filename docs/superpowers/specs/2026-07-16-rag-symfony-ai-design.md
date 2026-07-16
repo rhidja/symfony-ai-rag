@@ -116,17 +116,28 @@ adapté à un cas d'usage de questions-réponses qui ne nécessite pas de raison
 
 ## Infrastructure & configuration
 
-- **`docker-compose.yaml`** à la racine : service Postgres avec l'image `pgvector/pgvector`
-  (Postgres 16 ou 17), volume persistant, port exposé en local pour le développement.
+- **`docker-compose.yaml`** à la racine, avec trois services :
+  - **`app`** : l'application Symfony servie par **FrankenPHP** (image basée sur le
+    `dunglas/frankenphp` officiel, dans la lignée du Symfony Docker officiel), remplaçant le serveur
+    local `symfony server`. Le code est monté en volume pour le développement.
+  - **`database`** : Postgres avec l'image `pgvector/pgvector` (Postgres 16 ou 17), volume persistant.
+  - **`traefik`** : reverse proxy routant les requêtes vers `app` via des labels Docker
+    (`traefik.http.routers.app.rule=Host(\`rag.localhost\`)`), avec le dashboard Traefik activé en
+    local pour le débogage. En développement, HTTP simple sur `rag.localhost` (pas de TLS local dans
+    ce périmètre).
 - **`symfony/doctrine-bundle` + `symfony/orm-pack`** : gèrent la connexion (`DATABASE_URL` dans
-  `.env.local`). Aucune entité Doctrine métier n'est nécessaire — `symfony/ai-postgres-store`
-  s'appuie sur cette connexion pour dialoguer directement avec Postgres/pgvector.
+  `.env.local`, pointant vers le service `database`). Aucune entité Doctrine métier n'est
+  nécessaire — `symfony/ai-postgres-store` s'appuie sur cette connexion pour dialoguer directement
+  avec Postgres/pgvector.
 - **Initialisation du store** : utilisation de la commande fournie par `symfony/ai-postgres-store`
   pour créer la table et activer l'extension `vector`, à exécuter une fois le conteneur Postgres
   démarré.
 - **Variables d'environnement** : `OPENAI_API_KEY` (déjà présente, utilisée) et `ANTHROPIC_API_KEY`
   (déjà présente, conservée pour un usage futur non couvert par ce périmètre — aucun code ne
   l'utilise ici).
+- **Exécution des commandes console** : les commandes `app:rag:ingest` et `app:rag:ask` s'exécutent
+  via `docker compose exec app bin/console ...`, le développement local se faisant entièrement à
+  travers les conteneurs (plus de `symfony server:start`).
 - **`config/packages/ai.yaml`** : configuration du bundle `symfony/ai-bundle` déclarant la plateforme
   OpenAI, le store Postgres, et les modèles utilisés (embeddings + chat) via des paramètres
   facilement modifiables.
