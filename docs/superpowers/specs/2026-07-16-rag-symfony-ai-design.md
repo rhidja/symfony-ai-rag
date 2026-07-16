@@ -116,15 +116,14 @@ adapté à un cas d'usage de questions-réponses qui ne nécessite pas de raison
 
 ## Infrastructure & configuration
 
-- **`docker-compose.yaml`** à la racine, avec trois services :
+- **`docker-compose.yaml`** à la racine, avec deux services :
   - **`app`** : l'application Symfony servie par **FrankenPHP** (image basée sur le
     `dunglas/frankenphp` officiel, dans la lignée du Symfony Docker officiel), remplaçant le serveur
-    local `symfony server`. Le code est monté en volume pour le développement.
+    local `symfony server`. FrankenPHP embarque son propre serveur web (basé sur Caddy) et expose
+    directement l'application sur un port local (ex. `localhost:8080`) — pas de reverse proxy
+    supplémentaire nécessaire pour une seule application. Le code est monté en volume pour le
+    développement.
   - **`database`** : Postgres avec l'image `pgvector/pgvector` (Postgres 16 ou 17), volume persistant.
-  - **`traefik`** : reverse proxy routant les requêtes vers `app` via des labels Docker
-    (`traefik.http.routers.app.rule=Host(\`rag.localhost\`)`), avec le dashboard Traefik activé en
-    local pour le débogage. En développement, HTTP simple sur `rag.localhost` (pas de TLS local dans
-    ce périmètre).
 - **`symfony/doctrine-bundle` + `symfony/orm-pack`** : gèrent la connexion (`DATABASE_URL` dans
   `.env.local`, pointant vers le service `database`). Aucune entité Doctrine métier n'est
   nécessaire — `symfony/ai-postgres-store` s'appuie sur cette connexion pour dialoguer directement
