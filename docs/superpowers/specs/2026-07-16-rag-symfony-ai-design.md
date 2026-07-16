@@ -114,6 +114,28 @@ adapté à un cas d'usage de questions-réponses qui ne nécessite pas de raison
   d'information sur ce sujet dans la base" sans appeler le LLM de génération — évite les coûts
   inutiles et réduit le risque d'hallucination.
 
+## Interface web
+
+Une page unique permettant de poser une question et de voir la réponse sans passer par le CLI ou un
+client API externe.
+
+- **Route/contrôleur Symfony** : `GET /` rend un template Twig unique (`templates/rag/index.html.twig`)
+  contenant un formulaire (champ texte question + bouton "Envoyer") et une zone d'affichage vide pour
+  la réponse et les sources.
+- **`symfony/asset-mapper`** : gère les assets JS/CSS sans étape de build (pas de Webpack/Node) —
+  importmap pour Stimulus et Bootstrap.
+- **Bootstrap** (CSS, via `symfony/asset-mapper` / importmap) : mise en forme du formulaire et de la
+  zone de réponse (classes utilitaires standard, pas de personnalisation poussée).
+- **Stimulus** (`symfony/stimulus-bundle`) : un contrôleur `rag_ask_controller.js` qui,
+  à la soumission du formulaire :
+  1. empêche le rechargement de page (`event.preventDefault()`) ;
+  2. appelle `POST /api/rag/ask` en `fetch` avec la question saisie ;
+  3. affiche un état de chargement pendant l'appel ;
+  4. injecte la réponse et la liste des sources dans la zone de résultat, ou un message d'erreur si
+     l'appel échoue (ex. validation côté serveur, question vide).
+- **Portée** : une seule page, pas de navigation, pas d'historique conservé entre les questions (le
+  résultat précédent est remplacé à chaque nouvelle soumission). Pas de persistance des échanges.
+
 ## Infrastructure & configuration
 
 - **`docker-compose.yaml`** à la racine, avec deux services :
@@ -150,6 +172,8 @@ adapté à un cas d'usage de questions-réponses qui ne nécessite pas de raison
 - Ingestion incrémentale par upload unitaire (seul le traitement batch d'un dossier est prévu).
 - Ingestion asynchrone via Symfony Messenger (traitement synchrone retenu pour ce périmètre).
 - Utilisation d'Anthropic/Claude (clé conservée pour plus tard, non câblée dans ce périmètre).
+- Historique persistant ou multi-page pour l'interface web (une seule page, un seul échange affiché
+  à la fois).
 
 ## Tests
 
