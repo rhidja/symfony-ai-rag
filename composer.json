@@ -11,6 +11,7 @@
         "doctrine/orm": "^3.6",
         "phpdocumentor/reflection-docblock": "^6.0",
         "phpoffice/math": "^0.3",
+        "phpoffice/phpspreadsheet": "^5.9",
         "phpoffice/phpword": "^1.4",
         "phpstan/phpdoc-parser": "^2.3",
         "smalot/pdfparser": "^2.12",

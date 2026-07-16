@@ -29,6 +29,8 @@ services:
             $loaders:
                 pdf: '@App\Rag\Loader\PdfLoader'
                 docx: '@App\Rag\Loader\DocxLoader'
+                csv: '@App\Rag\Loader\CsvLoader'
+                xlsx: '@App\Rag\Loader\XlsxLoader'
 
     app.rag.transformer.split:
         class: Symfony\AI\Store\Document\Transformer\TextSplitTransformer

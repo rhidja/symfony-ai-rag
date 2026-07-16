@@ -1,7 +1,7 @@
 # RAG — Symfony AI
 
 Système de RAG (Retrieval-Augmented Generation) permettant d'interroger en langage naturel une
-base de connaissances constituée de documents PDF et Word. Voir le design complet dans
+base de connaissances constituée de documents PDF, Word, CSV et Excel. Voir le design complet dans
 [docs/superpowers/specs/2026-07-16-rag-symfony-ai-design.md](docs/superpowers/specs/2026-07-16-rag-symfony-ai-design.md).
 
 ## Stack
@@ -36,8 +36,10 @@ docker compose exec app php bin/console app:rag:ingest /chemin/vers/un/dossier
 ```
 
 Scanne récursivement le dossier donné (monté dans le conteneur) à la recherche de fichiers
-`.pdf` et `.docx`, les découpe en chunks et les indexe dans Postgres. Ré-exécuter la commande sur
-un dossier déjà ingéré remplace les chunks existants pour chaque fichier (idempotent).
+`.pdf`, `.docx`, `.csv` et `.xlsx`, les découpe en chunks et les indexe dans Postgres. Pour les
+fichiers CSV/Excel, chaque ligne est convertie en texte `en-tête: valeur, en-tête: valeur, ...`
+(par feuille pour Excel). Ré-exécuter la commande sur un dossier déjà ingéré remplace les chunks
+existants pour chaque fichier (idempotent).
 
 ## Interroger la base
 
@@ -54,7 +56,7 @@ Un serveur MCP (Model Context Protocol) expose le dossier de documents (`var/ebo
 MCP local (Claude Desktop, Claude Code, etc.), **indépendamment du RAG** — ces tools reflètent ce
 qui est sur disque, pas ce qui est indexé en base :
 
-- `list_documents` : liste les fichiers PDF/DOCX présents dans `var/ebook` (nom, taille).
+- `list_documents` : liste les fichiers PDF/DOCX/CSV/XLSX présents dans `var/ebook` (nom, taille).
 - `read_document` : extrait et retourne le contenu texte d'un fichier (paramètre optionnel
   `max_length`, défaut 20000 caractères, au-delà le contenu est tronqué).
 

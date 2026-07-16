@@ -15,7 +15,7 @@ use Symfony\Component\Process\Process;
 
 #[AsCommand(
     name: 'app:rag:ingest',
-    description: 'Ingest PDF/DOCX documents from a directory into the RAG vector store',
+    description: 'Ingest PDF/DOCX/CSV/XLSX documents from a directory into the RAG vector store',
 )]
 final class RagIngestCommand extends Command
 {
@@ -28,7 +28,7 @@ final class RagIngestCommand extends Command
 
     protected function configure(): void
     {
-        $this->addArgument('directory', InputArgument::REQUIRED, 'Directory to scan for PDF/DOCX documents');
+        $this->addArgument('directory', InputArgument::REQUIRED, 'Directory to scan for PDF/DOCX/CSV/XLSX documents');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -45,13 +45,13 @@ final class RagIngestCommand extends Command
         $finder = (new Finder())
             ->files()
             ->in($directory)
-            ->name(['*.pdf', '*.docx'])
+            ->name(['*.pdf', '*.docx', '*.csv', '*.xlsx'])
             ->sortByName();
 
         $files = iterator_to_array($finder);
 
         if ([] === $files) {
-            $io->warning('No PDF or DOCX files found in the given directory.');
+            $io->warning('No PDF, DOCX, CSV, or XLSX files found in the given directory.');
 
             return Command::SUCCESS;
         }

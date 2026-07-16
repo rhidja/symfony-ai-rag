@@ -8,8 +8,8 @@ use Symfony\AI\Store\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Reads the text content of a PDF/DOCX file from the documents directory (var/ebook), by
- * extracting it directly - independent of the RAG vector store.
+ * Reads the text content of a PDF/DOCX/CSV/XLSX file from the documents directory (var/ebook),
+ * by extracting it directly - independent of the RAG vector store.
  */
 final class ReadDocumentTool
 {
@@ -28,7 +28,7 @@ final class ReadDocumentTool
      */
     #[McpTool(
         name: 'read_document',
-        description: 'Reads and returns the extracted text content of a PDF/DOCX file from the documents directory (as listed by list_documents).',
+        description: 'Reads and returns the extracted text content of a PDF/DOCX/CSV/XLSX file from the documents directory (as listed by list_documents).',
     )]
     public function read(string $filename, int $max_length = self::DEFAULT_MAX_LENGTH): array
     {

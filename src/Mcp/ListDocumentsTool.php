@@ -7,8 +7,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Finder\Finder;
 
 /**
- * Lists PDF/DOCX files found on disk in the documents directory. Independent of the RAG
- * vector store - reflects what's on disk, not what has been ingested.
+ * Lists PDF/DOCX/CSV/XLSX files found on disk in the documents directory. Independent of
+ * the RAG vector store - reflects what's on disk, not what has been ingested.
  */
 final class ListDocumentsTool
 {
@@ -25,7 +25,7 @@ final class ListDocumentsTool
      */
     #[McpTool(
         name: 'list_documents',
-        description: 'Lists the PDF/DOCX files available in the documents directory (var/ebook), independently of the RAG index.',
+        description: 'Lists the PDF/DOCX/CSV/XLSX files available in the documents directory (var/ebook), independently of the RAG index.',
     )]
     public function list(): array
     {
@@ -38,7 +38,7 @@ final class ListDocumentsTool
         $finder = (new Finder())
             ->files()
             ->in($directory)
-            ->name(['*.pdf', '*.docx'])
+            ->name(['*.pdf', '*.docx', '*.csv', '*.xlsx'])
             ->sortByName();
 
         $documents = [];
