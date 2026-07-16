@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(composer require*)",
+      "Bash(composer audit*)",
+      "Bash(composer install*)",
+      "Bash(composer update*)",
+      "Bash(composer show*)",
+      "Bash(composer dump-autoload*)",
+      "Bash(composer validate*)",
+      "Bash(docker compose up*)",
+      "Bash(docker compose down*)",
+      "Bash(docker compose exec*)",
+      "Bash(docker compose build*)",
+      "Bash(docker compose ps*)",
+      "Bash(docker compose logs*)",
+      "Bash(docker compose run*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(php bin/console*)",
+      "Bash(php vendor/bin/phpunit*)",
+      "Bash(vendor/bin/phpunit*)",
+      "Read",
+      "Edit",
+      "Write",
+      "Glob",
+      "Grep"
+    ],
+    "deny": [
+      "Bash(git push*)",
+      "Bash(git reset --hard*)",
+      "Bash(rm -rf*)"
+    ]
+  }
+}
