@@ -38,6 +38,17 @@ Deux flux distincts :
 - `symfony/doctrine-bundle` + `symfony/orm-pack` : connexion à Postgres (requise par le store)
 - `docker-compose.yaml` avec l'image `pgvector/pgvector` : instance Postgres locale
 - Une couche d'extraction PDF/Word indépendante de l'écosystème symfony/ai
+- `symfony/finder` : parcours du dossier de documents à l'ingestion
+- `symfony/serializer` : (dé)sérialisation du payload JSON de l'API
+- `symfony/validator` : validation du payload entrant de l'API
+
+### Principe : s'appuyer sur les composants Symfony plutôt que du code maison
+
+Chaque fois qu'un composant Symfony standard couvre un besoin du design, il est préféré à une
+implémentation ad hoc : `symfony/finder` pour parcourir l'arborescence de fichiers,
+`symfony/serializer` pour la conversion JSON ↔ objets, `symfony/validator` pour la validation des
+entrées. Cela réduit le code à maintenir et s'aligne sur les conventions Symfony déjà en place dans
+le projet (Console, HttpKernel).
 
 ### Choix d'architecture retenu : RAG classique manuel
 
@@ -49,8 +60,10 @@ adapté à un cas d'usage de questions-réponses qui ne nécessite pas de raison
 
 ## Ingestion des documents
 
-- **Commande console** `app:rag:ingest <dossier>` : parcourt récursivement un répertoire, filtre les
-  fichiers `.pdf` et `.docx`.
+- **Commande console** `app:rag:ingest <dossier>` : utilise `Symfony\Component\Finder\Finder` pour
+  parcourir récursivement le répertoire et filtrer les fichiers `.pdf` et `.docx`. Traitement
+  synchrone, fichier par fichier, avec une barre de progression Console — pas de file d'attente
+  Messenger dans ce périmètre (corpus de taille moyenne, ingestion occasionnelle).
 - **Extraction de texte** : interface `DocumentExtractorInterface` avec deux implémentations :
   - `PdfExtractor` (via `smalot/pdfparser`)
   - `DocxExtractor` (via `phpoffice/phpword`)
@@ -89,6 +102,12 @@ adapté à un cas d'usage de questions-réponses qui ne nécessite pas de raison
 - **Endpoint API** `POST /api/rag/ask` : accepte `{"question": "..."}` en JSON, retourne
   `{"answer": "...", "sources": [...]}`. Pas d'authentification dans ce périmètre (hors scope
   explicite, à ajouter ultérieurement si nécessaire).
+  - Le payload entrant est désérialisé via `symfony/serializer` vers un DTO `AskRequest`
+    (propriété `question: string`).
+  - Le DTO est validé via `symfony/validator` (contrainte `NotBlank` sur `question`) ; en cas
+    d'échec, l'endpoint répond `400` avec le détail des erreurs de validation.
+  - La réponse (`answer` + `sources`) est sérialisée via `symfony/serializer` depuis un DTO
+    `AskResponse`, plutôt que construite manuellement en tableau JSON.
 
 - **Gestion des erreurs / cas vide** : si aucun chunk pertinent n'est trouvé (store vide ou score de
   similarité sous un seuil configurable), le système répond directement "je ne trouve pas
@@ -118,6 +137,7 @@ adapté à un cas d'usage de questions-réponses qui ne nécessite pas de raison
 - Découpage structurel des documents (par section/titre).
 - Architecture agent avec tool-calling autonome.
 - Ingestion incrémentale par upload unitaire (seul le traitement batch d'un dossier est prévu).
+- Ingestion asynchrone via Symfony Messenger (traitement synchrone retenu pour ce périmètre).
 - Utilisation d'Anthropic/Claude (clé conservée pour plus tard, non câblée dans ce périmètre).
 
 ## Tests
