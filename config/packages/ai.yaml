@@ -1,27 +1,36 @@
+parameters:
+    app.rag.embeddings_model: 'text-embedding-3-small'
+    app.rag.chat_model: 'gpt-4o-mini'
+    app.rag.store_table: 'document_chunks'
+    app.rag.chunk_size: 1000
+    app.rag.chunk_overlap: 150
+    app.rag.top_k: 5
+
 ai:
     platform:
-        # Inference Platform configuration
-        # see https://github.com/symfony/ai/tree/main/src/platform#platform-bridges
-
-        # openai:
-        #    api_key: '%env(OPENAI_API_KEY)%'
-
-    agent:
-        # Agent configuration
-        # see https://symfony.com/doc/current/ai/bundles/ai-bundle.html
-
-        # default:
-        #    platform: 'ai.platform.openai'
-        #    model: 'gpt-5-mini'
-        #    prompt: |
-        #        You are a pirate and you write funny.
-        #    tools:
-        #        - 'Symfony\AI\Agent\Bridge\Clock\Clock'
+        openai:
+            api_key: '%env(OPENAI_API_KEY)%'
 
     store:
-        # Store configuration
+        postgres:
+            default:
+                dbal_connection: 'doctrine.dbal.default_connection'
+                table_name: '%app.rag.store_table%'
 
-        # chromadb:
-        #    default:
-        #        client: 'client.service.id'
-        #        collection: 'my_collection'
+    vectorizer:
+        default:
+            platform: 'ai.platform.openai'
+            model: '%app.rag.embeddings_model%'
+
+    retriever:
+        default:
+            vectorizer: 'ai.vectorizer.default'
+            store: 'ai.store.postgres.default'
+
+    indexer:
+        documents:
+            loader: 'App\Rag\Loader\ExtensionAwareLoader'
+            vectorizer: 'ai.vectorizer.default'
+            store: 'ai.store.postgres.default'
+            transformers:
+                - 'app.rag.transformer.split'

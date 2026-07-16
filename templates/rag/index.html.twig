@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}RAG - Poser une question{% endblock %}
+
+{% block body %}
+    <div class="container py-5" style="max-width: 720px;" data-controller="rag-ask">
+        <h1 class="mb-4">Base de connaissances</h1>
+
+        <form data-action="rag-ask#submit">
+            <div class="mb-3">
+                <label for="question" class="form-label">Votre question</label>
+                <textarea class="form-control" id="question" rows="3" data-rag-ask-target="question" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" data-rag-ask-target="submit">Envoyer</button>
+        </form>
+
+        <div class="alert alert-danger mt-4 d-none" data-rag-ask-target="error"></div>
+
+        <div class="mt-4 d-none" data-rag-ask-target="result">
+            <h2 class="h5">Réponse</h2>
+            <p class="border rounded p-3 bg-light" data-rag-ask-target="answer"></p>
+
+            <h2 class="h6">Sources</h2>
+            <ul data-rag-ask-target="sources"></ul>
+        </div>
+    </div>
+{% endblock %}
