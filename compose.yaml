@@ -1,8 +1,24 @@
 
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SERVER_NAME: "${SERVER_NAME:-rag.localhost:80}"
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-app}?serverVersion=17&charset=utf8"
+    volumes:
+      - ./:/app
+      - /app/var/
+    ports:
+      - "80:80"
+    depends_on:
+      database:
+        condition: service_healthy
+
 ###> doctrine/doctrine-bundle ###
   database:
-    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    image: "pgvector/pgvector:${PGVECTOR_IMAGE_TAG:-0.8.0-pg17}"
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-app}
       # You should definitely change the password in production

@@ -1,0 +1,10 @@
+.git/
+.github/
+.claude/
+.agents/
+docs/
+var/
+vendor/
+node_modules/
+*.local
+*.local.php
