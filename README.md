@@ -50,11 +50,13 @@ un dossier déjà ingéré remplace les chunks existants pour chaque fichier (id
 
 ## Serveur MCP
 
-Un serveur MCP (Model Context Protocol) expose deux tools pour un client MCP local (Claude Desktop,
-Claude Code, etc.) :
+Un serveur MCP (Model Context Protocol) expose le dossier de documents (`var/ebook`) à un client
+MCP local (Claude Desktop, Claude Code, etc.), **indépendamment du RAG** — ces tools reflètent ce
+qui est sur disque, pas ce qui est indexé en base :
 
-- `list_indexed_documents` : liste les documents indexés avec le nombre de chunks pour chacun.
-- `ask_knowledge_base` : pose une question au RAG et retourne la réponse + les sources.
+- `list_documents` : liste les fichiers PDF/DOCX présents dans `var/ebook` (nom, taille).
+- `read_document` : extrait et retourne le contenu texte d'un fichier (paramètre optionnel
+  `max_length`, défaut 20000 caractères, au-delà le contenu est tronqué).
 
 Configurer votre client MCP pour lancer :
 
