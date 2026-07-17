@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Process\PhpExecutableFinder;
+use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
 use Symfony\Component\Process\Process;
 
 #[AsCommand(
@@ -56,13 +56,6 @@ final class RagIngestCommand extends Command
             return Command::SUCCESS;
         }
 
-        $phpBinary = (new PhpExecutableFinder())->find();
-        if (false === $phpBinary) {
-            $io->error('Unable to locate the PHP binary to run per-file ingestion subprocesses.');
-
-            return Command::FAILURE;
-        }
-
         $io->title(\sprintf('Ingesting documents from "%s"', $directory));
         $progressBar = $io->createProgressBar(\count($files));
         $progressBar->start();
@@ -72,12 +65,18 @@ final class RagIngestCommand extends Command
         foreach ($files as $file) {
             $path = $file->getRealPath();
 
-            $process = new Process([$phpBinary, $this->projectDir.'/bin/console', 'app:rag:ingest-file', $path]);
+            $process = new Process([\PHP_BINARY, $this->projectDir.'/bin/console', 'app:rag:ingest-file', $path]);
             $process->setTimeout(300);
-            $process->run();
 
-            if (!$process->isSuccessful()) {
-                $failures[$path] = trim($process->getErrorOutput()) ?: trim($process->getOutput());
+            try {
+                $process->run();
+
+                if (!$process->isSuccessful()) {
+                    $failures[$path] = trim($process->getErrorOutput()) ?: trim($process->getOutput());
+                }
+            } catch (ProcessExceptionInterface $e) {
+                // e.g. ProcessTimedOutException - one slow/hanging file must not abort the whole batch
+                $failures[$path] = $e->getMessage();
             }
 
             $progressBar->advance();
