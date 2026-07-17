@@ -9,11 +9,13 @@ use Symfony\AI\Store\Document\Metadata;
 use Symfony\AI\Store\Document\TextDocument;
 use Symfony\AI\Store\Exception\InvalidArgumentException;
 use Symfony\AI\Store\Exception\RuntimeException;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\Uid\Uuid;
 
 /**
  * Extracts text from a DOCX file into a single TextDocument.
  */
+#[AutoconfigureTag('app.rag.loader', ['extension' => 'docx'])]
 final class DocxLoader implements LoaderInterface
 {
     public function load(?string $source = null, array $options = []): iterable

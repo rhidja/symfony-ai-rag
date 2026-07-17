@@ -8,6 +8,7 @@ use Symfony\AI\Store\Document\LoaderInterface;
 use Symfony\AI\Store\Document\Metadata;
 use Symfony\AI\Store\Document\TextDocument;
 use Symfony\AI\Store\Exception\InvalidArgumentException;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Uid\Uuid;
 
 final class ExtensionAwareLoaderTest extends TestCase
@@ -23,7 +24,10 @@ final class ExtensionAwareLoaderTest extends TestCase
         $docxLoader = $this->createMock(LoaderInterface::class);
         $docxLoader->expects(self::never())->method('load');
 
-        $loader = new ExtensionAwareLoader(['pdf' => $pdfLoader, 'docx' => $docxLoader]);
+        $loader = new ExtensionAwareLoader(new ServiceLocator([
+            'pdf' => static fn () => $pdfLoader,
+            'docx' => static fn () => $docxLoader,
+        ]));
 
         $documents = iterator_to_array($loader->load('/path/file.pdf'));
 
@@ -35,7 +39,9 @@ final class ExtensionAwareLoaderTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        $loader = new ExtensionAwareLoader(['pdf' => $this->createMock(LoaderInterface::class)]);
+        $loader = new ExtensionAwareLoader(new ServiceLocator([
+            'pdf' => fn () => $this->createMock(LoaderInterface::class),
+        ]));
 
         iterator_to_array($loader->load('/path/file.txt'));
     }
@@ -44,7 +50,7 @@ final class ExtensionAwareLoaderTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        $loader = new ExtensionAwareLoader([]);
+        $loader = new ExtensionAwareLoader(new ServiceLocator([]));
 
         iterator_to_array($loader->load(null));
     }

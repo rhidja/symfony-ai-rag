@@ -8,12 +8,14 @@ use Symfony\AI\Store\Document\Metadata;
 use Symfony\AI\Store\Document\TextDocument;
 use Symfony\AI\Store\Exception\InvalidArgumentException;
 use Symfony\AI\Store\Exception\RuntimeException;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\Uid\Uuid;
 
 /**
  * Converts a whole XLSX file into a single TextDocument: for each sheet, the header
  * row labels each subsequent row's cells, one line of text per row.
  */
+#[AutoconfigureTag('app.rag.loader', ['extension' => 'xlsx'])]
 final class XlsxLoader implements LoaderInterface
 {
     public function load(?string $source = null, array $options = []): iterable

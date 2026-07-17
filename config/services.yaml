@@ -18,19 +18,9 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
-        exclude:
-            - '../src/Rag/Loader/ExtensionAwareLoader.php'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-
-    App\Rag\Loader\ExtensionAwareLoader:
-        arguments:
-            $loaders:
-                pdf: '@App\Rag\Loader\PdfLoader'
-                docx: '@App\Rag\Loader\DocxLoader'
-                csv: '@App\Rag\Loader\CsvLoader'
-                xlsx: '@App\Rag\Loader\XlsxLoader'
 
     app.rag.transformer.split:
         class: Symfony\AI\Store\Document\Transformer\TextSplitTransformer

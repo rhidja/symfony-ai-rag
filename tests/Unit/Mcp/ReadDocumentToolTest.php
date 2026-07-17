@@ -9,6 +9,7 @@ use Symfony\AI\Store\Document\Metadata;
 use Symfony\AI\Store\Document\TextDocument;
 use Symfony\AI\Store\Document\LoaderInterface;
 use Symfony\AI\Store\Exception\InvalidArgumentException;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Uid\Uuid;
 
 final class ReadDocumentToolTest extends TestCase
@@ -38,7 +39,7 @@ final class ReadDocumentToolTest extends TestCase
             new TextDocument(Uuid::v4(), 'The extracted book text.', new Metadata()),
         ]);
 
-        $loader = new ExtensionAwareLoader(['pdf' => $pdfLoader]);
+        $loader = new ExtensionAwareLoader(new ServiceLocator(['pdf' => fn () => $pdfLoader]));
         $tool = new ReadDocumentTool($loader, $this->projectDir);
 
         $result = $tool->read('book.pdf');
@@ -55,7 +56,7 @@ final class ReadDocumentToolTest extends TestCase
             new TextDocument(Uuid::v4(), str_repeat('a', 100), new Metadata()),
         ]);
 
-        $loader = new ExtensionAwareLoader(['pdf' => $pdfLoader]);
+        $loader = new ExtensionAwareLoader(new ServiceLocator(['pdf' => fn () => $pdfLoader]));
         $tool = new ReadDocumentTool($loader, $this->projectDir);
 
         $result = $tool->read('book.pdf', 10);
@@ -66,7 +67,7 @@ final class ReadDocumentToolTest extends TestCase
 
     public function testReadRejectsPathTraversal(): void
     {
-        $loader = new ExtensionAwareLoader(['pdf' => $this->createMock(LoaderInterface::class)]);
+        $loader = new ExtensionAwareLoader(new ServiceLocator(['pdf' => fn () => $this->createMock(LoaderInterface::class)]));
         $tool = new ReadDocumentTool($loader, $this->projectDir);
 
         $this->expectException(InvalidArgumentException::class);
@@ -76,7 +77,7 @@ final class ReadDocumentToolTest extends TestCase
 
     public function testReadRejectsNonExistentFile(): void
     {
-        $loader = new ExtensionAwareLoader(['pdf' => $this->createMock(LoaderInterface::class)]);
+        $loader = new ExtensionAwareLoader(new ServiceLocator(['pdf' => fn () => $this->createMock(LoaderInterface::class)]));
         $tool = new ReadDocumentTool($loader, $this->projectDir);
 
         $this->expectException(InvalidArgumentException::class);

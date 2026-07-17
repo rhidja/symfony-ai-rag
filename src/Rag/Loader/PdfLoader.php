@@ -8,11 +8,13 @@ use Symfony\AI\Store\Document\Metadata;
 use Symfony\AI\Store\Document\TextDocument;
 use Symfony\AI\Store\Exception\InvalidArgumentException;
 use Symfony\AI\Store\Exception\RuntimeException;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\Uid\Uuid;
 
 /**
  * Extracts text from a PDF file into a single TextDocument.
  */
+#[AutoconfigureTag('app.rag.loader', ['extension' => 'pdf'])]
 final class PdfLoader implements LoaderInterface
 {
     public function __construct(

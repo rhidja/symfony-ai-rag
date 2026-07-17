@@ -7,6 +7,7 @@ use Symfony\AI\Store\Document\Metadata;
 use Symfony\AI\Store\Document\TextDocument;
 use Symfony\AI\Store\Exception\InvalidArgumentException;
 use Symfony\AI\Store\Exception\RuntimeException;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -14,6 +15,7 @@ use Symfony\Component\Uid\Uuid;
  * (header: value, header: value, ...), consistent with how PdfLoader/DocxLoader
  * treat a whole file as one document.
  */
+#[AutoconfigureTag('app.rag.loader', ['extension' => 'csv'])]
 final class CsvLoader implements LoaderInterface
 {
     public function load(?string $source = null, array $options = []): iterable
