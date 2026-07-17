@@ -34,3 +34,19 @@ ai:
             store: 'ai.store.postgres.default'
             transformers:
                 - 'app.rag.transformer.split'
+
+    # Agent-based RAG: the LLM decides itself whether/how many times to call
+    # search_knowledge_base, instead of a single fixed retrieve-then-generate pass.
+    agent:
+        rag:
+            platform: 'ai.platform.openai'
+            model: '%app.rag.chat_model%'
+            prompt:
+                text: |
+                    You are a helpful assistant answering questions about an internal knowledge base.
+                    Use the search_knowledge_base tool to find relevant information before answering.
+                    Cite your sources. If you can't find an answer, say so clearly instead of making one up.
+                include_tools: true
+            tools:
+                - 'App\Agent\Tool\SimilaritySearch'
+            include_sources: true

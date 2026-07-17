@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Rag\Dto\AskRequest;
 use App\Rag\Dto\AskResponse;
-use App\Rag\RagQueryService;
+use App\Rag\RagAgentQueryService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 final class RagAskController
 {
     public function __construct(
-        private readonly RagQueryService $ragQueryService,
+        private readonly RagAgentQueryService $ragQueryService,
         private readonly SerializerInterface&NormalizerInterface $serializer,
         private readonly ValidatorInterface $validator,
     ) {

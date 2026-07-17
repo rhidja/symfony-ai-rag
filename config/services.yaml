@@ -34,3 +34,6 @@ when@test:
         App\Rag\RagQueryService:
             autowire: true
             public: true
+        App\Rag\RagAgentQueryService:
+            autowire: true
+            public: true

@@ -2,15 +2,13 @@
 
 namespace App\Tests\Functional\Controller;
 
-use App\Rag\RagQueryService;
-use Symfony\AI\Platform\Test\InMemoryPlatform;
-use Symfony\AI\Platform\Vector\Vector;
-use Symfony\AI\Store\Document\Metadata;
-use Symfony\AI\Store\Document\VectorDocument;
-use Symfony\AI\Store\Document\VectorizerInterface;
-use Symfony\AI\Store\StoreInterface;
+use App\Rag\RagAgentQueryService;
+use Symfony\AI\Agent\AgentInterface;
+use Symfony\AI\Agent\Toolbox\Source\Source;
+use Symfony\AI\Agent\Toolbox\Source\SourceCollection;
+use Symfony\AI\Platform\Metadata\Metadata;
+use Symfony\AI\Platform\Result\ResultInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\Uid\Uuid;
 
 final class RagAskControllerTest extends WebTestCase
 {
@@ -18,26 +16,20 @@ final class RagAskControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $document = new VectorDocument(
-            Uuid::v4(),
-            new Vector([0.1, 0.2]),
-            new Metadata([
-                Metadata::KEY_SOURCE => '/docs/manual.pdf',
-                Metadata::KEY_TEXT => 'Reset instructions.',
-            ]),
-        );
+        $sources = new SourceCollection([
+            new Source('/docs/manual.pdf', '/docs/manual.pdf', 'Reset instructions.'),
+        ]);
 
-        $vectorizer = $this->createMock(VectorizerInterface::class);
-        $vectorizer->method('vectorize')->willReturn(new Vector([0.1, 0.2]));
+        $result = $this->createMock(ResultInterface::class);
+        $result->method('getContent')->willReturn('Hold the button for 5 seconds.');
+        $result->method('getMetadata')->willReturn(new Metadata(['sources' => $sources]));
 
-        $store = $this->createMock(StoreInterface::class);
-        $store->method('query')->willReturn([$document]);
-
-        $platform = new InMemoryPlatform('Hold the button for 5 seconds.');
+        $agent = $this->createMock(AgentInterface::class);
+        $agent->method('call')->willReturn($result);
 
         static::getContainer()->set(
-            RagQueryService::class,
-            new RagQueryService($vectorizer, $store, $platform, 'gpt-4o-mini', 5),
+            RagAgentQueryService::class,
+            new RagAgentQueryService($agent),
         );
 
         $client->request(

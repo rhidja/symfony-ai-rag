@@ -43,12 +43,22 @@ existants pour chaque fichier (idempotent).
 
 ## Interroger la base
 
-- **CLI** :
+Deux implémentations sont disponibles, l'API et l'interface web utilisant la version **agent** :
+
+- **RAG manuel** (`RagQueryService`) : flux déterministe — 1 recherche vectorielle fixe puis 1 appel
+  de génération. Prévisible, 2 appels API par question.
   ```bash
   docker compose exec app php bin/console app:rag:ask "Votre question ?"
   ```
-- **API** : `POST /api/rag/ask` avec `{"question": "..."}`, répond `{"answer": "...", "sources": [...]}`.
-- **Interface web** : formulaire sur http://rag.localhost/.
+- **RAG agent** (`RagAgentQueryService`) : un Agent (`symfony/ai-agent`) décide lui-même s'il doit
+  appeler l'outil `search_knowledge_base`, et combien de fois — utilisé par `POST /api/rag/ask` et
+  l'interface web.
+  ```bash
+  docker compose exec app php bin/console app:rag:ask-agent "Votre question ?"
+  ```
+- **API** : `POST /api/rag/ask` avec `{"question": "..."}`, répond `{"answer": "...", "sources": [...]}`
+  (version agent).
+- **Interface web** : formulaire sur http://rag.localhost/ (version agent, via l'API).
 
 ## Serveur MCP
 
