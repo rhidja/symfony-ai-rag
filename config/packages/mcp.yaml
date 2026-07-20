@@ -1,8 +1,0 @@
-mcp:
-    app: 'rag-documents'
-    version: '1.0.0'
-    description: 'MCP server exposing the documents directory (var/ebook): list files and read their extracted content, independently of the RAG index.'
-
-    client_transports:
-        stdio: true
-        http: false

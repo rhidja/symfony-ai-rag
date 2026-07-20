@@ -5,7 +5,7 @@ CONSOLE = $(EXEC) php bin/console
 
 .PHONY: help init up down start stop restart build logs sh \
         install store-setup store-drop ingest ask ask-agent \
-        test cache-clear mcp-server
+        test cache-clear
 
 help: ## Affiche cette aide
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -58,6 +58,3 @@ test: ## Lance la suite de tests PHPUnit
 
 cache-clear: ## Vide le cache Symfony
 	$(CONSOLE) cache:clear
-
-mcp-server: ## Lance le serveur MCP (STDIO)
-	$(COMPOSE) exec -T app php bin/console mcp:server
