@@ -145,9 +145,6 @@
             ".editorconfig"
         ]
     },
-    "symfony/mcp-bundle": {
-        "version": "v0.11.0"
-    },
     "symfony/property-info": {
         "version": "8.1",
         "recipe": {
