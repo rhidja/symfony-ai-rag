@@ -14,24 +14,32 @@ base de connaissances constituée de documents PDF, Word, CSV et Excel. Voir le 
 ## Démarrage
 
 1. Renseigner `OPENAI_API_KEY` dans `.env.local` (déjà fait si vous avez suivi la conversation).
-2. Démarrer la stack :
+2. Premier démarrage complet (build de l'image, démarrage de la stack, initialisation du store
+   vectoriel) :
+
+   ```bash
+   make init
+   ```
+
+   Ou étape par étape :
 
    ```bash
    docker compose up -d
-   ```
-
-3. Initialiser le store vectoriel (à faire une seule fois, ou après un `ai:store:drop`) :
-
-   ```bash
    docker compose exec app php bin/console ai:store:setup ai.store.postgres.default
    ```
 
-4. L'application est accessible sur http://rag.localhost/ (ajoutez `127.0.0.1 rag.localhost` à
+3. L'application est accessible sur http://rag.localhost/ (ajoutez `127.0.0.1 rag.localhost` à
    votre fichier hosts si votre système ne résout pas `.localhost` automatiquement).
+
+Un `Makefile` regroupe les commandes courantes (`make help` pour la liste complète) : `make up`,
+`make down`, `make logs`, `make sh`, `make store-setup`, `make store-drop`, `make cache-clear`,
+etc.
 
 ## Ingestion de documents
 
 ```bash
+make ingest DIR=/chemin/vers/un/dossier
+# ou
 docker compose exec app php bin/console app:rag:ingest /chemin/vers/un/dossier
 ```
 
@@ -48,12 +56,16 @@ Deux implémentations sont disponibles, l'API et l'interface web utilisant la ve
 - **RAG manuel** (`RagQueryService`) : flux déterministe — 1 recherche vectorielle fixe puis 1 appel
   de génération. Prévisible, 2 appels API par question.
   ```bash
+  make ask Q="Votre question ?"
+  # ou
   docker compose exec app php bin/console app:rag:ask "Votre question ?"
   ```
 - **RAG agent** (`RagAgentQueryService`) : un Agent (`symfony/ai-agent`) décide lui-même s'il doit
   appeler l'outil `search_knowledge_base`, et combien de fois — utilisé par `POST /api/rag/ask` et
   l'interface web.
   ```bash
+  make ask-agent Q="Votre question ?"
+  # ou
   docker compose exec app php bin/console app:rag:ask-agent "Votre question ?"
   ```
 - **API** : `POST /api/rag/ask` avec `{"question": "..."}`, répond `{"answer": "...", "sources": [...]}`
@@ -73,6 +85,8 @@ qui est sur disque, pas ce qui est indexé en base :
 Configurer votre client MCP pour lancer :
 
 ```bash
+make mcp-server
+# ou
 docker compose exec -T app php bin/console mcp:server
 ```
 
@@ -81,6 +95,8 @@ docker compose exec -T app php bin/console mcp:server
 ## Tests
 
 ```bash
+make test
+# ou
 docker compose exec -e APP_ENV=test app php bin/phpunit
 ```
 
