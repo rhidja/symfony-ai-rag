@@ -1,20 +1,35 @@
 # RAG — Symfony AI
 
 Système de RAG (Retrieval-Augmented Generation) permettant d'interroger en langage naturel une
-base de connaissances constituée de documents PDF, Word, CSV et Excel. Voir le design complet dans
+base de connaissances constituée de documents PDF, Word, CSV et Excel. Le projet expose également
+un serveur MCP (Model Context Protocol), qui permet à un client MCP (Claude Desktop, Claude Code,
+etc.) d'accéder directement aux documents du dossier de travail, indépendamment du pipeline RAG.
+Voir le design complet dans
 [docs/superpowers/specs/2026-07-16-rag-symfony-ai-design.md](docs/superpowers/specs/2026-07-16-rag-symfony-ai-design.md).
 
 ## Stack
 
 - Symfony 8.1 + `symfony/ai-bundle` (OpenAI platform, store Postgres/pgvector)
 - FrankenPHP (application) + PostgreSQL/pgvector (`docker compose`)
-- `symfony/finder`, `symfony/serializer`, `symfony/validator`, `symfony/asset-mapper`
 - Interface web en Stimulus + Bootstrap (sans build JS)
 
 ## Démarrage
 
-1. Renseigner `OPENAI_API_KEY` dans `.env.local` (déjà fait si vous avez suivi la conversation).
-2. Premier démarrage complet (build de l'image, démarrage de la stack, initialisation du store
+1. Cloner le dépôt :
+
+   ```bash
+   git clone git@github.com:rhidja/symfony-ai-rag.git
+   cd symfony-ai-rag
+   ```
+
+2. Copier `.env` en `.env.local` puis renseigner `OPENAI_API_KEY` (clé d'API OpenAI, nécessaire
+   pour l'ingestion et les requêtes) :
+
+   ```bash
+   cp .env .env.local
+   ```
+
+3. Premier démarrage complet (build de l'image, démarrage de la stack, initialisation du store
    vectoriel) :
 
    ```bash
@@ -28,7 +43,7 @@ base de connaissances constituée de documents PDF, Word, CSV et Excel. Voir le 
    docker compose exec app php bin/console ai:store:setup ai.store.postgres.default
    ```
 
-3. L'application est accessible sur http://rag.localhost/ (ajoutez `127.0.0.1 rag.localhost` à
+4. L'application est accessible sur http://rag.localhost/ (ajoutez `127.0.0.1 rag.localhost` à
    votre fichier hosts si votre système ne résout pas `.localhost` automatiquement).
 
 Un `Makefile` regroupe les commandes courantes (`make help` pour la liste complète) : `make up`,
