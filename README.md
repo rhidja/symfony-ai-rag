@@ -1,10 +1,7 @@
 # RAG — Symfony AI
 
 Système de RAG (Retrieval-Augmented Generation) permettant d'interroger en langage naturel une
-base de connaissances constituée de documents PDF, Word, CSV et Excel. Le projet expose également
-un serveur MCP (Model Context Protocol), qui permet à un client MCP (Claude Desktop, Claude Code,
-etc.) d'accéder directement aux documents du dossier de travail, indépendamment du pipeline RAG.
-Voir le design complet dans
+base de connaissances constituée de documents PDF, Word, CSV et Excel. Voir le design complet dans
 [docs/superpowers/specs/2026-07-16-rag-symfony-ai-design.md](docs/superpowers/specs/2026-07-16-rag-symfony-ai-design.md).
 
 ## Stack
@@ -86,26 +83,6 @@ Deux implémentations sont disponibles, l'API et l'interface web utilisant la ve
 - **API** : `POST /api/rag/ask` avec `{"question": "..."}`, répond `{"answer": "...", "sources": [...]}`
   (version agent).
 - **Interface web** : formulaire sur http://rag.localhost/ (version agent, via l'API).
-
-## Serveur MCP
-
-Un serveur MCP (Model Context Protocol) expose le dossier de documents (`var/ebook`) à un client
-MCP local (Claude Desktop, Claude Code, etc.), **indépendamment du RAG** — ces tools reflètent ce
-qui est sur disque, pas ce qui est indexé en base :
-
-- `list_documents` : liste les fichiers PDF/DOCX/CSV/XLSX présents dans `var/ebook` (nom, taille).
-- `read_document` : extrait et retourne le contenu texte d'un fichier (paramètre optionnel
-  `max_length`, défaut 20000 caractères, au-delà le contenu est tronqué).
-
-Configurer votre client MCP pour lancer :
-
-```bash
-make mcp-server
-# ou
-docker compose exec -T app php bin/console mcp:server
-```
-
-(transport STDIO uniquement ; voir `config/packages/mcp.yaml`).
 
 ## Tests
 
