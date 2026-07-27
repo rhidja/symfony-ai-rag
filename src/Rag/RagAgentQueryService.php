@@ -2,6 +2,7 @@
 
 namespace App\Rag;
 
+use App\Rag\Model\RagAnswer;
 use Symfony\AI\Agent\AgentInterface;
 use Symfony\AI\Agent\Toolbox\Source\SourceCollection;
 use Symfony\AI\Platform\Message\Message;

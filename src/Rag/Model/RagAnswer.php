@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Rag;
+namespace App\Rag\Model;
 
 final class RagAnswer
 {

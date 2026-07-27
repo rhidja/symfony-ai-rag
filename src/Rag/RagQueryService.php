@@ -2,6 +2,7 @@
 
 namespace App\Rag;
 
+use App\Rag\Model\RagAnswer;
 use Symfony\AI\Platform\Message\Message;
 use Symfony\AI\Platform\Message\MessageBag;
 use Symfony\AI\Platform\PlatformInterface;
