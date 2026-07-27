@@ -53,7 +53,15 @@ final class RagQueryService
             $source = $metadata->hasSource() ? $metadata->getSource() : (string) $document->getId();
             $text = $metadata->hasText() ? $metadata->getText() : '';
 
-            $context[] = \sprintf("Source: %s\n%s", $source, $text);
+            $header = "Source: {$source}";
+            if ($metadata->hasTitle()) {
+                $header .= "\nTitle: {$metadata->getTitle()}";
+            }
+            if (\is_string($metadata['_author'] ?? null)) {
+                $header .= "\nAuthor: {$metadata['_author']}";
+            }
+
+            $context[] = "{$header}\n{$text}";
             $sources[$source] = $source;
         }
 

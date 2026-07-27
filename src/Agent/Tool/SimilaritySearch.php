@@ -46,7 +46,15 @@ final class SimilaritySearch implements HasSourcesInterface
             $source = $metadata->hasSource() ? $metadata->getSource() : (string) $document->getId();
             $text = $metadata->hasText() ? $metadata->getText() : '';
 
-            $blocks[] = \sprintf("Source: %s\n%s", $source, $text);
+            $header = "Source: {$source}";
+            if ($metadata->hasTitle()) {
+                $header .= "\nTitle: {$metadata->getTitle()}";
+            }
+            if (\is_string($metadata['_author'] ?? null)) {
+                $header .= "\nAuthor: {$metadata['_author']}";
+            }
+
+            $blocks[] = "{$header}\n{$text}";
             $this->addSource(new Source($source, $source, $text));
         }
 
