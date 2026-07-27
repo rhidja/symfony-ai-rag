@@ -65,7 +65,8 @@ final class RagIngestCommand extends Command
         foreach ($files as $file) {
             $path = $file->getRealPath();
 
-            $process = new Process([\PHP_BINARY, $this->projectDir.'/bin/console', 'app:rag:ingest-file', $path]);
+            // Some PDFs (heavy embedded fonts) need well above the default CLI memory_limit to parse.
+            $process = new Process([\PHP_BINARY, '-d', 'memory_limit=1536M', $this->projectDir.'/bin/console', 'app:rag:ingest-file', $path]);
             $process->setTimeout(300);
 
             try {
