@@ -10,7 +10,8 @@ CONSOLE = $(EXEC) php bin/console
 help: ## Affiche cette aide
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
-init: build up store-setup ## Premier démarrage complet (build + up + store-setup)
+init: build up store-setup ## Premier démarrage complet (build + up + store-setup + ingestion)
+	$(CONSOLE) app:rag:ingest var/ebook
 	@echo "Projet prêt sur http://rag.localhost/"
 
 up: ## Démarre la stack (détaché)
