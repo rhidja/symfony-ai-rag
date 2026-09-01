@@ -2,6 +2,7 @@
 
 namespace App\Rag\Loader;
 
+use App\Rag\Ocr\PdfPageOcrExtractor;
 use Smalot\PdfParser\Parser as PdfParser;
 use Symfony\AI\Store\Document\LoaderInterface;
 use Symfony\AI\Store\Document\Metadata;
@@ -13,12 +14,16 @@ use Symfony\Component\Uid\Uuid;
 
 /**
  * Extracts text from a PDF file into a single TextDocument.
+ *
+ * Pages that carry no embedded text (i.e. scanned pages) are OCR'd via
+ * PdfPageOcrExtractor, so mixed and fully-scanned PDFs are also indexed.
  */
 #[AutoconfigureTag('app.rag.loader', ['extension' => 'pdf'])]
 final class PdfLoader implements LoaderInterface
 {
     public function __construct(
         private readonly PdfParser $parser = new PdfParser(),
+        private readonly PdfPageOcrExtractor $ocr = new PdfPageOcrExtractor(),
     ) {
     }
 
@@ -34,13 +39,26 @@ final class PdfLoader implements LoaderInterface
 
         try {
             $document = $this->parser->parseFile($source);
-            $text = $document->getText();
+            $pages = $document->getPages();
             $details = $document->getDetails();
         } catch (\Exception $e) {
             throw new RuntimeException(\sprintf('Unable to extract text from PDF "%s": %s', $source, $e->getMessage()), previous: $e);
         }
 
-        $text = trim($text);
+        $textParts = [];
+        foreach ($pages as $index => $page) {
+            $pageText = trim($page->getText());
+
+            if ('' === $pageText) {
+                $pageText = trim($this->ocr->extractPageText($source, $index + 1));
+            }
+
+            if ('' !== $pageText) {
+                $textParts[] = $pageText;
+            }
+        }
+
+        $text = trim(implode("\n\n", $textParts));
 
         if ('' === $text) {
             return;

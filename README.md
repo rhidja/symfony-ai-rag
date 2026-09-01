@@ -61,6 +61,12 @@ fichiers CSV/Excel, chaque ligne est convertie en texte `en-tête: valeur, en-t�
 (par feuille pour Excel). Ré-exécuter la commande sur un dossier déjà ingéré remplace les chunks
 existants pour chaque fichier (idempotent).
 
+Les PDF scannés (pages sans texte intégré) sont pris en charge : pour chaque page où
+`smalot/pdfparser` ne trouve aucun texte, `PdfLoader` la rasterise (`pdftoppm`) et lui applique
+une OCR Tesseract (`fra+eng`), page par page — les PDF mixtes (texte + pages scannées) sont donc
+également gérés. Nécessite les paquets `poppler-utils` et `tesseract-ocr` (+ `tesseract-ocr-fra`,
+`tesseract-ocr-eng`), déjà installés dans l'image Docker de l'app.
+
 ## Interroger la base
 
 Deux implémentations sont disponibles, l'API et l'interface web utilisant la version **agent** :
