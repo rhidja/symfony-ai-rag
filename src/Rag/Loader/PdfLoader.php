@@ -45,18 +45,24 @@ final class PdfLoader implements LoaderInterface
             throw new RuntimeException(\sprintf('Unable to extract text from PDF "%s": %s', $source, $e->getMessage()), previous: $e);
         }
 
-        $textParts = [];
+        $pageTexts = [];
+        $scannedPages = [];
         foreach ($pages as $index => $page) {
+            $pageNumber = $index + 1;
             $pageText = trim($page->getText());
 
             if ('' === $pageText) {
-                $pageText = trim($this->ocr->extractPageText($source, $index + 1));
+                $scannedPages[] = $pageNumber;
             }
 
-            if ('' !== $pageText) {
-                $textParts[] = $pageText;
-            }
+            $pageTexts[$pageNumber] = $pageText;
         }
+
+        foreach ($this->ocr->extractPagesText($source, $scannedPages) as $pageNumber => $ocrText) {
+            $pageTexts[$pageNumber] = trim($ocrText);
+        }
+
+        $textParts = array_filter($pageTexts, static fn (string $pageText): bool => '' !== $pageText);
 
         $text = trim(implode("\n\n", $textParts));
 
