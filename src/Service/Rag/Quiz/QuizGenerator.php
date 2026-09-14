@@ -48,8 +48,11 @@ final class QuizGenerator
 
         $messages = new MessageBag(
             Message::forSystem($this->systemPrompt()),
+            // Kept in English (unlike the French system prompt) so this wrapper text
+            // doesn't outweigh the extracts' own language when the model decides what
+            // language to write the quiz in (see the system prompt's "LANGUE" rule).
             Message::ofUser(\sprintf(
-                "Nombre de questions à générer : %d\nDocument source : %s\n\nExtraits :\n%s",
+                "Number of questions to generate: %d\nSource document: %s\n\nExcerpts:\n%s",
                 $this->questionCount,
                 $documentSource,
                 implode("\n\n---\n\n", $chunks),
