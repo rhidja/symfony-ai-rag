@@ -39,6 +39,11 @@ courante pour piloter le projet ; `make help` en affiche la liste complète à t
 4. L'application est accessible sur http://rag.localhost/ (ajoutez `127.0.0.1 rag.localhost` à
    votre fichier hosts si votre système ne résout pas `.localhost` automatiquement).
 
+5. [Adminer](https://www.adminer.org/) (interface web pour inspecter la base Postgres) est
+   disponible sur http://localhost:8080/ — serveur pré-rempli à `database`, utilisateur/mot de
+   passe/base définis par `POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_DB` (par défaut
+   `app`/`!ChangeMe!`/`app`).
+
 ## Commandes disponibles
 
 | Commande | Description |
