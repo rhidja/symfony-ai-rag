@@ -103,10 +103,19 @@ final class QuizComponentTest extends KernelTestCase
         self::assertNull($component->component()->feedback);
         self::assertSame('Multi-choice?', $component->component()->getCurrentQuestion()['prompt']);
 
-        // Question 2: multi-choice, answered correctly via the checkbox-bound array prop.
+        // Question 2 is also the last one: the attempt becomes complete as
+        // soon as this answer is recorded, but its feedback must still be
+        // rendered before the recap — asserted against the actual rendered
+        // HTML, not just component state, since a template branch ordering
+        // bug (checking completion before feedback) previously skipped
+        // straight to the recap and silently dropped the last question's
+        // feedback from the page.
         $component = $component->set('selectedIndices', [0, 2])->call('submitAnswer');
 
         self::assertTrue($component->component()->feedback['correct']);
+        $renderedFeedback = (string) $component->render();
+        self::assertStringContainsString('A and C are correct.', $renderedFeedback);
+        self::assertStringNotContainsString('Quiz terminé', $renderedFeedback);
 
         $component = $component->call('next');
 
@@ -114,6 +123,7 @@ final class QuizComponentTest extends KernelTestCase
         self::assertTrue($attempt->isComplete());
         self::assertSame(2, $attempt->getScore());
         self::assertNull($component->component()->getCurrentQuestion());
+        self::assertStringContainsString('Quiz terminé', (string) $component->render());
     }
 
     public function testStartWithoutADocumentShowsAnError(): void

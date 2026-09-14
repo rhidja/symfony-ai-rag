@@ -48,20 +48,9 @@
             </div>
         {% endif %}
 
-    {% elseif attempt.complete %}
-        {# --- Récapitulatif --- #}
-        <div class="card shadow-sm">
-            <div class="card-body text-center">
-                <h2 class="h5 mb-3">Quiz terminé</h2>
-                <p class="display-6 mb-3">{{ attempt.score }} / {{ attempt.totalQuestions }}</p>
-                <button type="button" class="btn btn-primary" data-action="live#action" data-live-action-param="restart">
-                    Nouvelle partie
-                </button>
-            </div>
-        </div>
-
     {% elseif feedback %}
-        {# --- Feedback de la dernière réponse --- #}
+        {# --- Feedback de la dernière réponse (y compris la toute dernière question,
+             donc vérifié avant l'état "terminé" ci-dessous) --- #}
         <div class="card shadow-sm">
             <div class="card-body">
                 <p class="fw-bold {{ feedback.correct ? 'text-success' : 'text-danger' }}">
@@ -71,6 +60,18 @@
                 <p class="text-muted small mb-3">Source : {{ feedback.source }}</p>
                 <button type="button" class="btn btn-primary" data-action="live#action" data-live-action-param="next">
                     Suivant
+                </button>
+            </div>
+        </div>
+
+    {% elseif attempt.complete %}
+        {# --- Récapitulatif --- #}
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h2 class="h5 mb-3">Quiz terminé</h2>
+                <p class="display-6 mb-3">{{ attempt.score }} / {{ attempt.totalQuestions }}</p>
+                <button type="button" class="btn btn-primary" data-action="live#action" data-live-action-param="restart">
+                    Nouvelle partie
                 </button>
             </div>
         </div>

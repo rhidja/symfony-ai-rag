@@ -99,7 +99,14 @@ final class QuizGenerator
      */
     private function sampleChunks(string $documentSource): array
     {
-        $sampleSize = max(6, $this->questionCount * 3);
+        // Chunks are 1000-char slices of a raw PDF text extraction with no
+        // notion of order preserved in storage, so many of them land on
+        // captions, tables of contents, exercise lists or mid-sentence
+        // fragments. Oversampling well beyond the question count gives the
+        // model enough usable material to pick from (see the "quality of
+        // extracts" rule in the generation prompt) rather than being forced
+        // to build a question out of an unusable extract.
+        $sampleSize = max(15, $this->questionCount * 6);
 
         $table = $this->connection->getDatabasePlatform()->quoteSingleIdentifier($this->storeTable);
         $textKey = Metadata::KEY_TEXT;
