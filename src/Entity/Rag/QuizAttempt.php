@@ -119,8 +119,13 @@ class QuizAttempt
      * Computes the final score from the recorded answers and marks the
      * attempt as completed. Idempotent: calling it again recomputes the same
      * result rather than double-counting.
+     *
+     * Deliberately not named complete(): Twig's attribute resolution for
+     * `attempt.complete` would call this exact-name method (a void mutator)
+     * in preference to isComplete(), silently breaking `{% if
+     * attempt.complete %}` checks in templates.
      */
-    public function complete(): void
+    public function markCompleted(): void
     {
         $this->score = \count(array_filter($this->answers, static fn (array $answer): bool => $answer['correct']));
         $this->completedAt = new \DateTimeImmutable();

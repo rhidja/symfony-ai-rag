@@ -52,7 +52,7 @@ final class QuizAttemptService
         $attempt->recordAnswer($questionIndex, $selectedIndices);
 
         if ($attempt->isComplete()) {
-            $attempt->complete();
+            $attempt->markCompleted();
         }
 
         $this->entityManager->flush();

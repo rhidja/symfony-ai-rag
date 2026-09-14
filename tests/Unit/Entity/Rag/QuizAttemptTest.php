@@ -110,7 +110,7 @@ final class QuizAttemptTest extends TestCase
 
         $attempt->recordAnswer(0, [0]); // correct
         $attempt->recordAnswer(1, [0]); // incorrect (partial)
-        $attempt->complete();
+        $attempt->markCompleted();
 
         self::assertSame(1, $attempt->getScore());
         self::assertNotNull($attempt->getCompletedAt());
