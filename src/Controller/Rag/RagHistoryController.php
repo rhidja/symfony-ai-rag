@@ -3,8 +3,8 @@
 namespace App\Controller\Rag;
 
 use App\Service\Rag\Chat\ChatHistoryService;
-use App\Service\Rag\Chat\ChatSessionResolver;
 use App\Service\Rag\Dto\ChatMessageResponse;
+use App\Service\Rag\Session\VisitorSessionResolver;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -12,13 +12,13 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
  * Exposes the current visitor's chat session history (one continuous
- * conversation per session, see ChatSessionResolver).
+ * conversation per session, see VisitorSessionResolver).
  */
 final class RagHistoryController
 {
     public function __construct(
         private readonly ChatHistoryService $chatHistory,
-        private readonly ChatSessionResolver $chatSession,
+        private readonly VisitorSessionResolver $chatSession,
         private readonly NormalizerInterface $serializer,
     ) {
     }

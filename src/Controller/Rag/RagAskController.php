@@ -3,10 +3,10 @@
 namespace App\Controller\Rag;
 
 use App\Service\Rag\Chat\ChatHistoryService;
-use App\Service\Rag\Chat\ChatSessionResolver;
 use App\Service\Rag\Dto\AskRequest;
 use App\Service\Rag\Dto\AskResponse;
 use App\Service\Rag\RagAgentQueryService;
+use App\Service\Rag\Session\VisitorSessionResolver;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,7 +22,7 @@ final class RagAskController
         private readonly SerializerInterface&NormalizerInterface $serializer,
         private readonly ValidatorInterface $validator,
         private readonly ChatHistoryService $chatHistory,
-        private readonly ChatSessionResolver $chatSession,
+        private readonly VisitorSessionResolver $chatSession,
     ) {
     }
 
