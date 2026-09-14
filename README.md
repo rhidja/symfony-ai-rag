@@ -94,7 +94,26 @@ Deux implémentations sont disponibles, l'API et l'interface web utilisant la ve
   ```
 - **API** : `POST /api/rag/ask` avec `{"question": "..."}`, répond `{"answer": "...", "sources": [...]}`
   (version agent).
-- **Interface web** : formulaire sur http://rag.localhost/ (version agent, via l'API).
+- **Interface web** : interface de chat sur http://rag.localhost/ (version agent, via l'API).
+
+### Historique des conversations
+
+Chaque question posée via `POST /api/rag/ask` est enregistrée en base (table `chat_message`,
+Doctrine) et associée à une session anonyme identifiée par cookie (session Symfony) — pas de
+compte utilisateur. L'historique est donc conservé pour un même visiteur/navigateur d'une visite à
+l'autre.
+
+- `GET /api/rag/history` : renvoie l'historique de la session courante
+  (`[{"question", "answer", "sources", "createdAt"}, ...]`), utilisé par l'interface de chat pour
+  réafficher la conversation au chargement de la page.
+- `DELETE /api/rag/history` : efface l'historique de la session courante (bouton "Nouvelle
+  conversation" de l'interface).
+
+Chaque question reste traitée indépendamment par le RAG (pas de mémoire conversationnelle
+ré-injectée dans le prompt) : l'historique sert à consulter les échanges passés, pas à répondre à
+des questions de suivi implicites.
+
+La table est créée/mise à jour via `make schema-update` (inclus dans `make init`).
 
 ## Tests
 
@@ -103,4 +122,5 @@ make test
 ```
 
 Comprend des tests unitaires (extraction PDF/DOCX/CSV/XLSX, OCR), d'intégration (`RagQueryService`
-avec des doubles de test `symfony/ai`) et fonctionnels (endpoint API).
+avec des doubles de test `symfony/ai`) et fonctionnels (endpoints `/api/rag/ask` et
+`/api/rag/history`).

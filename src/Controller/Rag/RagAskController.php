@@ -2,6 +2,8 @@
 
 namespace App\Controller\Rag;
 
+use App\Service\Rag\Chat\ChatHistoryService;
+use App\Service\Rag\Chat\ChatSessionResolver;
 use App\Service\Rag\Dto\AskRequest;
 use App\Service\Rag\Dto\AskResponse;
 use App\Service\Rag\RagAgentQueryService;
@@ -19,6 +21,8 @@ final class RagAskController
         private readonly RagAgentQueryService $ragQueryService,
         private readonly SerializerInterface&NormalizerInterface $serializer,
         private readonly ValidatorInterface $validator,
+        private readonly ChatHistoryService $chatHistory,
+        private readonly ChatSessionResolver $chatSession,
     ) {
     }
 
@@ -43,6 +47,13 @@ final class RagAskController
         }
 
         $answer = $this->ragQueryService->ask($askRequest->question);
+
+        $this->chatHistory->record(
+            $this->chatSession->resolve(),
+            $askRequest->question,
+            $answer->answer,
+            $answer->sources,
+        );
 
         $response = new AskResponse($answer->answer, $answer->sources);
 

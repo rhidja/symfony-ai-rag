@@ -4,13 +4,13 @@ EXEC    = $(COMPOSE) exec app
 CONSOLE = $(EXEC) php bin/console
 
 .PHONY: help init up down start stop restart build logs sh \
-        install store-setup store-drop ingest ask ask-agent \
+        install store-setup store-drop schema-update ingest ask ask-agent \
         test cache-clear
 
 help: ## Affiche cette aide
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
-init: build up store-setup ## Premier démarrage complet (build + up + store-setup + ingestion)
+init: build up store-setup schema-update ## Premier démarrage complet (build + up + store-setup + schema-update + ingestion)
 	$(CONSOLE) app:rag:ingest var/ebook
 	@echo "Projet prêt sur http://rag.localhost/"
 
@@ -44,6 +44,9 @@ store-setup: ## Initialise le store vectoriel Postgres/pgvector
 
 store-drop: ## Supprime le store vectoriel
 	$(CONSOLE) ai:store:drop ai.store.postgres.default
+
+schema-update: ## Crée/met à jour les tables Doctrine (ex. historique du chat)
+	$(CONSOLE) doctrine:schema:update --force
 
 ingest: ## Ingère un dossier de documents (make ingest DIR=/chemin)
 	$(CONSOLE) app:rag:ingest $(DIR)
