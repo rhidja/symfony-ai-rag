@@ -115,6 +115,28 @@ des questions de suivi implicites.
 
 La table est créée/mise à jour via `make schema-update` (inclus dans `make init`).
 
+## Feuille de route — application d'apprentissage
+
+Au-delà de l'interrogation de la base, le projet évolue vers une application d'**apprentissage** :
+s'entraîner sur le contenu indexé, pas seulement l'interroger. Le périmètre étant large, il est
+découpé en phases livrées séparément, chacune avec sa propre spec dans
+[docs/superpowers/specs/](docs/superpowers/specs/) :
+
+1. **Quiz sur un document entier** — QCM généré par l'IA à partir d'un document choisi, correction
+   immédiate et sourcée, historique des scores par session. Voir
+   [2026-09-14-rag-quiz-mode-design.md](docs/superpowers/specs/2026-09-14-rag-quiz-mode-design.md).
+2. **Sélection par chapitre/section** — cibler le quiz sur une partie précise d'un document ;
+   nécessite d'extraire une structure (titres/chapitres) à l'ingestion, pas encore fait aujourd'hui.
+3. **Exercices en texte libre** — question ouverte, réponse tapée, correction/feedback par l'IA.
+4. **Flashcards** — cartes recto/verso générées à partir des documents, auto-évaluation.
+5. **Upload d'une solution manuscrite** — photo d'une réponse écrite à la main, passée à l'OCR
+   (réutilise `PdfPageOcrExtractor`/Tesseract), puis corrigée comme un exercice en texte libre.
+6. **PWA** — manifest, service worker, installabilité ; transverse à toute l'application (chat +
+   quiz + futurs modes), traité indépendamment des modes d'entraînement eux-mêmes.
+
+Chaque phase est conçue et validée avant d'être implémentée ; cette liste reflète l'intention
+discutée, pas un engagement de calendrier.
+
 ## Tests
 
 ```bash
