@@ -63,9 +63,20 @@ existants pour chaque fichier (idempotent).
 
 Les PDF scannés (pages sans texte intégré) sont pris en charge : pour chaque page où
 `smalot/pdfparser` ne trouve aucun texte, `PdfLoader` la rasterise (`pdftoppm`) et lui applique
-une OCR Tesseract (`fra+eng`), page par page — les PDF mixtes (texte + pages scannées) sont donc
-également gérés. Nécessite les paquets `poppler-utils` et `tesseract-ocr` (+ `tesseract-ocr-fra`,
+une OCR Tesseract (`fra+eng`) — les PDF mixtes (texte + pages scannées) sont donc également gérés.
+Nécessite les paquets `poppler-utils` et `tesseract-ocr` (+ `tesseract-ocr-fra`,
 `tesseract-ocr-eng`), déjà installés dans l'image Docker de l'app.
+
+L'OCR est le poste le plus lent de l'ingestion (rasterisation + reconnaissance par page). Deux
+optimisations dans `PdfPageOcrExtractor` limitent son coût :
+
+- **Pool parallèle** : plusieurs pages sont traitées simultanément (4 par défaut) au lieu d'une
+  par une, chaque page étant un subprocess `pdftoppm && tesseract` indépendant.
+- **Cache par page** (Symfony Cache, pool `cache.app`) : le résultat OCR d'une page est mis en
+  cache (clé = chemin + date de modification + taille du fichier + page + résolution + langues).
+  Réingérer un fichier déjà traité et inchangé ne relance donc aucun OCR — sur un livre scanné de
+  210 pages, une première ingestion à froid (~15-20 min) redescend à quelques secondes une fois
+  en cache.
 
 ## Interroger la base
 
