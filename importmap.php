@@ -31,4 +31,5 @@ return [
     'bootstrap/dist/css/bootstrap.min.css' => ['version' => '5.3.8', 'type' => 'css'],
     'marked' => ['version' => '18.0.7'],
     'dompurify' => ['version' => '3.4.12'],
+    '@symfony/ux-live-component' => ['path' => './vendor/symfony/ux-live-component/assets/dist/live_controller.js'],
 ];

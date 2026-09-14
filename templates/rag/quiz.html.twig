@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}RAG - Quiz{% endblock %}
+
+{% block body %}
+    <div class="container py-4" style="max-width: 720px;">
+        <h1 class="h4 mb-4">Quiz</h1>
+
+        {{ component('Rag:QuizComponent') }}
+    </div>
+{% endblock %}

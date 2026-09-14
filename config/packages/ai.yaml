@@ -5,6 +5,7 @@ parameters:
     app.rag.chunk_size: 1000
     app.rag.chunk_overlap: 150
     app.rag.top_k: 5
+    app.rag.quiz_question_count: 5
 
 ai:
     platform:

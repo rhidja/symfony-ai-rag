@@ -115,6 +115,28 @@ des questions de suivi implicites.
 
 La table est créée/mise à jour via `make schema-update` (inclus dans `make init`).
 
+## Quiz
+
+Interface de chat sur http://rag.localhost/quiz permettant de s'entraîner sur un document déjà
+indexé, plutôt que de seulement l'interroger. Voir le design complet dans
+[2026-09-14-rag-quiz-mode-design.md](docs/superpowers/specs/2026-09-14-rag-quiz-mode-design.md).
+
+- **Démarrage** : choisir un document dans la liste déroulante (les documents déjà ingérés), puis
+  "Démarrer le quiz" — l'IA génère `app.rag.quiz_question_count` questions (5 par défaut) à choix
+  multiples à partir d'un échantillon de chunks du document (`QuizGenerator`, sortie structurée
+  `symfony/ai-platform`, un seul appel au modèle de chat).
+- **Réponse** : une question à la fois (mono ou multi-choix selon ce que l'IA a déterminé),
+  correction et explication sourcée immédiates avant de passer à la suivante. Les bonnes réponses ne
+  sont jamais envoyées au client avant d'avoir répondu à la question — l'état visible côté
+  navigateur ne contient que l'identifiant de la tentative en cours et le retour de la dernière
+  réponse.
+- **Récapitulatif et historique** : score final à la fin du quiz ; les tentatives (en cours ou
+  terminées) de la session apparaissent dans une liste d'historique, comme pour le chat.
+- **Interface** : un unique composant Symfony UX Live Component (`QuizComponent`) gère tout le cycle
+  côté serveur (sélection → question → feedback → récap), sans JavaScript applicatif à écrire.
+- Son prompt système de génération vit dans
+  [config/prompts/quiz_generation_system_prompt.md](config/prompts/quiz_generation_system_prompt.md).
+
 ## Feuille de route — application d'apprentissage
 
 Au-delà de l'interrogation de la base, le projet évolue vers une application d'**apprentissage** :
@@ -122,9 +144,10 @@ s'entraîner sur le contenu indexé, pas seulement l'interroger. Le périmètre 
 découpé en phases livrées séparément, chacune avec sa propre spec dans
 [docs/superpowers/specs/](docs/superpowers/specs/) :
 
-1. **Quiz sur un document entier** — QCM généré par l'IA à partir d'un document choisi, correction
-   immédiate et sourcée, historique des scores par session. Voir
-   [2026-09-14-rag-quiz-mode-design.md](docs/superpowers/specs/2026-09-14-rag-quiz-mode-design.md).
+1. **Quiz sur un document entier** ✅ livré — QCM généré par l'IA à partir d'un document choisi,
+   correction immédiate et sourcée, historique des scores par session. Voir
+   [2026-09-14-rag-quiz-mode-design.md](docs/superpowers/specs/2026-09-14-rag-quiz-mode-design.md)
+   et son [plan d'implémentation](docs/superpowers/plans/2026-09-14-rag-quiz-mode-plan.md).
 2. **Sélection par chapitre/section** — cibler le quiz sur une partie précise d'un document ;
    nécessite d'extraire une structure (titres/chapitres) à l'ingestion, pas encore fait aujourd'hui.
 3. **Exercices en texte libre** — question ouverte, réponse tapée, correction/feedback par l'IA.
@@ -143,6 +166,7 @@ discutée, pas un engagement de calendrier.
 make test
 ```
 
-Comprend des tests unitaires (extraction PDF/DOCX/CSV/XLSX, OCR), d'intégration (`RagQueryService`
-avec des doubles de test `symfony/ai`) et fonctionnels (endpoints `/api/rag/ask` et
-`/api/rag/history`).
+Comprend des tests unitaires (extraction PDF/DOCX/CSV/XLSX, OCR, entités), d'intégration
+(`RagQueryService`, `QuizGenerator`, `QuizAttemptService` avec des doubles de test `symfony/ai`) et
+fonctionnels (endpoints `/api/rag/ask`, `/api/rag/history`, et le `QuizComponent` via
+`InteractsWithLiveComponents`).

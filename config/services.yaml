@@ -37,3 +37,6 @@ when@test:
         App\Service\Rag\RagAgentQueryService:
             autowire: true
             public: true
+        App\Service\Rag\Quiz\QuizAttemptService:
+            autowire: true
+            public: true

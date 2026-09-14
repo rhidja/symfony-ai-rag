@@ -19,6 +19,15 @@
         {% endif %}
     </head>
     <body>
+        <nav class="navbar navbar-expand navbar-light bg-light border-bottom mb-0">
+            <div class="container">
+                <a class="navbar-brand" href="{{ path('app_rag_ui') }}">RAG</a>
+                <div class="navbar-nav">
+                    <a class="nav-link" href="{{ path('app_rag_ui') }}">Chat</a>
+                    <a class="nav-link" href="{{ path('app_quiz_ui') }}">Quiz</a>
+                </div>
+            </div>
+        </nav>
         {% block body %}{% endblock %}
     </body>
 </html>

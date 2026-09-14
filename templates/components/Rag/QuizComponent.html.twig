@@ -1,0 +1,123 @@
+<div{{ attributes }} class="d-flex flex-column gap-4">
+    {% if error %}
+        <div class="alert alert-danger mb-0">{{ error }}</div>
+    {% endif %}
+
+    {% set attempt = this.attempt %}
+
+    {% if not attempt %}
+        {# --- Sélection du document --- #}
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Démarrer un quiz</h2>
+
+                <div class="mb-3">
+                    <label class="form-label" for="quiz-document">Document</label>
+                    <select id="quiz-document" class="form-select" data-model="documentSource">
+                        <option value="">Choisissez un document…</option>
+                        {% for document in this.availableDocuments %}
+                            <option value="{{ document.source }}">{{ document.title ?: document.source }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="button" class="btn btn-primary" data-action="live#action" data-live-action-param="start">
+                    Démarrer le quiz
+                </button>
+            </div>
+        </div>
+
+        {% set history = this.history %}
+        {% if history|length > 0 %}
+            <div>
+                <h2 class="h6 text-muted">Tentatives précédentes</h2>
+                <ul class="list-group list-group-flush">
+                    {% for past in history %}
+                        <li class="list-group-item d-flex justify-content-between px-0">
+                            <span>{{ past.documentSource }}</span>
+                            <span class="text-muted">
+                                {% if past.completedAt %}
+                                    {{ past.score }} / {{ past.totalQuestions }}
+                                {% else %}
+                                    en cours
+                                {% endif %}
+                            </span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+    {% elseif feedback %}
+        {# --- Feedback de la dernière réponse (y compris la toute dernière question,
+             donc vérifié avant l'état "terminé" ci-dessous) --- #}
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <p class="fw-bold {{ feedback.correct ? 'text-success' : 'text-danger' }}">
+                    {{ feedback.correct ? 'Bonne réponse !' : 'Réponse incorrecte.' }}
+                </p>
+                <p class="mb-2">{{ feedback.explanation }}</p>
+                <p class="text-muted small mb-3">Source : {{ feedback.source }}</p>
+                <button type="button" class="btn btn-primary" data-action="live#action" data-live-action-param="next">
+                    Suivant
+                </button>
+            </div>
+        </div>
+
+    {% elseif attempt.complete %}
+        {# --- Récapitulatif --- #}
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h2 class="h5 mb-3">Quiz terminé</h2>
+                <p class="display-6 mb-3">{{ attempt.score }} / {{ attempt.totalQuestions }}</p>
+                <button type="button" class="btn btn-primary" data-action="live#action" data-live-action-param="restart">
+                    Nouvelle partie
+                </button>
+            </div>
+        </div>
+
+    {% else %}
+        {# --- Question en cours --- #}
+        {% set question = this.currentQuestion %}
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <p class="text-muted small mb-1">
+                    Question {{ question.index + 1 }} / {{ attempt.totalQuestions }}
+                </p>
+                <h2 class="h5 mb-3">{{ question.prompt }}</h2>
+
+                <div class="mb-3">
+                    {% for optionIndex, optionLabel in question.options %}
+                        <div class="form-check">
+                            {% if question.multiple %}
+                                <input
+                                    type="checkbox"
+                                    class="form-check-input"
+                                    id="quiz-option-{{ optionIndex }}"
+                                    value="{{ optionIndex }}"
+                                    data-model="selectedIndices"
+                                >
+                            {% else %}
+                                <input
+                                    type="radio"
+                                    class="form-check-input"
+                                    name="quiz-option"
+                                    id="quiz-option-{{ optionIndex }}"
+                                    data-action="live#action"
+                                    data-live-action-param="selectOption"
+                                    data-live-index-param="{{ optionIndex }}"
+                                    {{ optionIndex in selectedIndices ? 'checked' : '' }}
+                                >
+                            {% endif %}
+                            <label class="form-check-label" for="quiz-option-{{ optionIndex }}">{{ optionLabel }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button type="button" class="btn btn-primary" data-action="live#action" data-live-action-param="submitAnswer">
+                    Valider
+                </button>
+            </div>
+        </div>
+    {% endif %}
+</div>
