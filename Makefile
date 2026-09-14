@@ -57,7 +57,10 @@ ask: ## Interroge le RAG manuel (make ask Q="Votre question ?")
 ask-agent: ## Interroge le RAG agent (make ask-agent Q="Votre question ?")
 	$(CONSOLE) app:rag:ask-agent "$(Q)"
 
-test: ## Lance la suite de tests PHPUnit
+test: ## Lance la suite de tests PHPUnit (prépare la base/le store/le schéma en environnement de test)
+	$(COMPOSE) exec -e APP_ENV=test app php bin/console doctrine:database:create --if-not-exists -q
+	$(COMPOSE) exec -e APP_ENV=test app php bin/console ai:store:setup ai.store.postgres.default -q
+	$(COMPOSE) exec -e APP_ENV=test app php bin/console doctrine:schema:update --force -q
 	$(COMPOSE) exec -e APP_ENV=test app php bin/phpunit
 
 cache-clear: ## Vide le cache Symfony
