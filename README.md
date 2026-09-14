@@ -44,35 +44,8 @@ courante pour piloter le projet ; `make help` en affiche la liste complète à t
    passe/base définis par `POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_DB` (par défaut
    `app`/`!ChangeMe!`/`app`).
 
-## Commandes disponibles
-
-| Commande | Description |
-| --- | --- |
-| `make help` | Affiche cette aide |
-| `make init` | Premier démarrage complet (build + up + store-setup + ingestion) |
-| `make up` | Démarre la stack (détaché) |
-| `make down` | Arrête et supprime les conteneurs |
-| `make start` | Alias de `up` |
-| `make stop` | Arrête les conteneurs sans les supprimer |
-| `make restart` | Redémarre la stack |
-| `make build` | (Re)construit les images |
-| `make logs` | Suit les logs de la stack |
-| `make sh` | Ouvre un shell dans le conteneur app |
-| `make install` | Installe les dépendances Composer |
-| `make store-setup` | Initialise le store vectoriel Postgres/pgvector |
-| `make store-drop` | Supprime le store vectoriel |
-| `make ingest DIR=/chemin` | Ingère un dossier de documents |
-| `make ask Q="..."` | Interroge le RAG manuel |
-| `make ask-agent Q="..."` | Interroge le RAG agent |
-| `make test` | Lance la suite de tests PHPUnit |
-| `make cache-clear` | Vide le cache Symfony |
-
-Après toute modification du Dockerfile (ex. nouvelles dépendances système), reconstruire l'image
-avant de continuer :
-
-```bash
-make build && make up
-```
+Un `Makefile` regroupe toutes les commandes courantes du projet (stack, ingestion, interrogation,
+tests...) — lancez `make help` pour la liste complète et à jour.
 
 ## Ingestion de documents
 
