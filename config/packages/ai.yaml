@@ -29,7 +29,7 @@ ai:
 
     indexer:
         documents:
-            loader: 'App\Rag\Loader\ExtensionAwareLoader'
+            loader: 'App\Service\Rag\Loader\ExtensionAwareLoader'
             vectorizer: 'ai.vectorizer.default'
             store: 'ai.store.postgres.default'
             transformers:
@@ -61,5 +61,5 @@ ai:
 
                     Rappelle-toi : Il vaut mieux admettre que l'information n'est pas présente que de donner une réponse incertaine ou extrapolée.
             tools:
-                - 'App\Agent\Tool\SimilaritySearch'
+                - 'App\Service\Rag\Agent\Tool\SimilaritySearch'
             include_sources: true

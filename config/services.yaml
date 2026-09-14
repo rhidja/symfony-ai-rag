@@ -31,9 +31,9 @@ services:
 when@test:
     services:
         # made public so functional tests can replace it with a fake before making requests
-        App\Rag\RagQueryService:
+        App\Service\Rag\RagQueryService:
             autowire: true
             public: true
-        App\Rag\RagAgentQueryService:
+        App\Service\Rag\RagAgentQueryService:
             autowire: true
             public: true
