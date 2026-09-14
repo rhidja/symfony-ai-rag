@@ -4,6 +4,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libpq-dev \
         libzip-dev \
         libxml2-dev \
+        poppler-utils \
+        tesseract-ocr \
+        tesseract-ocr-fra \
+        tesseract-ocr-eng \
     && docker-php-ext-install pdo_pgsql pgsql zip \
     && rm -rf /var/lib/apt/lists/*
 

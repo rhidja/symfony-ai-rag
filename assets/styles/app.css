@@ -1,3 +1,7 @@
 body {
     background-color: skyblue;
 }
+
+[data-rag-ask-target="answer"] > *:last-child {
+    margin-bottom: 0;
+}

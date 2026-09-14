@@ -17,11 +17,17 @@
         <div class="alert alert-danger mt-4 d-none" data-rag-ask-target="error"></div>
 
         <div class="mt-4 d-none" data-rag-ask-target="result">
-            <h2 class="h5">Réponse</h2>
-            <p class="border rounded p-3 bg-light" data-rag-ask-target="answer"></p>
+            <h2 class="h5 mb-2">Réponse</h2>
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="mb-0" data-rag-ask-target="answer"></div>
+                </div>
+            </div>
 
-            <h2 class="h6">Sources</h2>
-            <ul data-rag-ask-target="sources"></ul>
+            <div data-rag-ask-target="sourcesWrapper" class="d-none">
+                <h2 class="h6 text-muted">Sources</h2>
+                <ul class="list-group list-group-flush" data-rag-ask-target="sources"></ul>
+            </div>
         </div>
     </div>
 {% endblock %}

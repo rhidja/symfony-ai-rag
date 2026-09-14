@@ -35,6 +35,16 @@ services:
       # - ./docker/db/data:/var/lib/postgresql/data:rw
 ###< doctrine/doctrine-bundle ###
 
+  adminer:
+    image: adminer:4
+    environment:
+      ADMINER_DEFAULT_SERVER: database
+    ports:
+      - "8080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+
 volumes:
 ###> doctrine/doctrine-bundle ###
   database_data:

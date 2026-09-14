@@ -184,3 +184,34 @@ client API externe.
 - Test d'intégration pour `RagQueryService` avec un store et une plateforme IA mockés/fake, couvrant
   le cas nominal et le cas "aucun résultat pertinent".
 - Test fonctionnel pour l'endpoint `POST /api/rag/ask` (statut, forme de la réponse JSON).
+
+## Évolutions depuis la rédaction initiale
+
+Ce document reste le compte-rendu des décisions prises au démarrage du projet ; les points ci-dessous
+retracent ce qui a changé depuis, sans réécrire les sections précédentes.
+
+- **Architecture agent, finalement retenue pour l'API/web** : contrairement à la section "Choix
+  d'architecture retenu" et à "Hors scope" ci-dessus, une seconde implémentation `RagAgentQueryService`
+  (`symfony/ai-agent`) a été ajoutée en plus du RAG manuel `RagQueryService`. L'agent décide lui-même
+  s'il doit appeler l'outil `search_knowledge_base` (`SimilaritySearch`) et combien de fois — c'est
+  cette version qui est utilisée par `POST /api/rag/ask` et l'interface web, le RAG manuel restant
+  disponible via `app:rag:ask` pour un flux déterministe à coût prévisible.
+- **Formats supplémentaires : CSV et Excel**. Au-delà de PDF/Word, l'ingestion couvre aussi `.csv` et
+  `.xlsx` (une ligne = un texte `en-tête: valeur, ...`, par feuille pour Excel). L'interface
+  `DocumentExtractorInterface` envisagée initialement a pris la forme de `LoaderInterface`
+  (`symfony/ai-store`), sélectionnée par extension via `ExtensionAwareLoader`.
+- **Support OCR pour les PDF scannés**. Les PDF sans texte intégré (scans) sont désormais gérés :
+  `PdfLoader` rasterise (`pdftoppm`) chaque page sans texte et lui applique une OCR Tesseract
+  (`fra+eng`) via `PdfPageOcrExtractor` — y compris les PDF mixtes (texte + pages scannées). L'OCR
+  étant coûteux, les pages sont traitées par un pool de subprocess parallèles (4 par défaut) et le
+  résultat par page est mis en cache (`cache.app`), rendant les ré-ingestions quasi instantanées.
+- **Prompt système externalisé**. Le system prompt de l'agent (règles anti-hallucination, citation
+  des sources, refus de deviner une identité) vit dans `config/prompts/rag_agent_system_prompt.md`
+  plutôt qu'inline dans `config/packages/ai.yaml` (option native `prompt.file` du bundle).
+- **Réorganisation du code par couche + feature**. `src/` est structuré en
+  `Controller/Rag/`, `Command/Rag/` et `Service/Rag/` (ce dernier regroupant `RagQueryService`,
+  `RagAgentQueryService`, `Dto/`, `Model/`, `Loader/`, `Ocr/`, `Agent/Tool/`) plutôt que par un seul
+  dossier `Rag/` mêlant toutes les couches.
+- **Messenger toujours hors scope**, conformément à la section "Hors scope" : la parallélisation de
+  l'OCR utilise un pool de subprocess PHP (`Symfony\Component\Process`) directement dans la commande
+  d'ingestion, sans file d'attente ni worker Messenger.
