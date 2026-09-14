@@ -1,33 +1,27 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}RAG - Poser une question{% endblock %}
+{% block title %}RAG - Chat{% endblock %}
 
 {% block body %}
-    <div class="container py-5" style="max-width: 720px;" data-controller="rag-ask">
-        <h1 class="mb-4">Base de connaissances</h1>
-
-        <form data-action="rag-ask#submit">
-            <div class="mb-3">
-                <label for="question" class="form-label">Votre question</label>
-                <textarea class="form-control" id="question" rows="3" data-rag-ask-target="question" required></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary" data-rag-ask-target="submit">Envoyer</button>
-        </form>
-
-        <div class="alert alert-danger mt-4 d-none" data-rag-ask-target="error"></div>
-
-        <div class="mt-4 d-none" data-rag-ask-target="result">
-            <h2 class="h5 mb-2">Réponse</h2>
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-                    <div class="mb-0" data-rag-ask-target="answer"></div>
-                </div>
-            </div>
-
-            <div data-rag-ask-target="sourcesWrapper" class="d-none">
-                <h2 class="h6 text-muted">Sources</h2>
-                <ul class="list-group list-group-flush" data-rag-ask-target="sources"></ul>
-            </div>
+    <div class="container py-4 d-flex flex-column" style="max-width: 1100px; height: 100vh;" data-controller="rag-chat">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h4 mb-0">Base de connaissances</h1>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-rag-chat-target="clear" data-action="rag-chat#clear">
+                Nouvelle conversation
+            </button>
         </div>
+
+        <div class="alert alert-danger d-none" data-rag-chat-target="error"></div>
+
+        <div class="flex-grow-1 overflow-auto border rounded-3 bg-white p-3 mb-3" data-rag-chat-target="messages"></div>
+
+        <p class="text-muted text-center d-none" data-rag-chat-target="empty">
+            Posez une question sur les documents indexés pour démarrer la conversation.
+        </p>
+
+        <form class="d-flex gap-2" data-action="rag-chat#submit">
+            <textarea class="form-control" rows="2" placeholder="Votre question" data-rag-chat-target="question" required></textarea>
+            <button type="submit" class="btn btn-primary align-self-end" data-rag-chat-target="submit">Envoyer</button>
+        </form>
     </div>
 {% endblock %}
